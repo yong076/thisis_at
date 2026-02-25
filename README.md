@@ -2,6 +2,11 @@
 
 thisis.at is a link-in-bio + mini-site builder for artists, venues, and creators.
 
+## Live
+
+- Production: https://thisis-at.vercel.app
+- Repository: https://github.com/yong076/thisis_at
+
 ## MVP scope included
 
 - Public profile at `/@handle`
@@ -39,3 +44,8 @@ npm run build
 ```bash
 vercel --prod
 ```
+
+## DB status
+
+- Connected integration: Prisma Postgres (`thisis-at-db`)
+- Injected env vars: `DATABASE_URL`, `PRISMA_DATABASE_URL`, `POSTGRES_URL`
