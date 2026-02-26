@@ -89,59 +89,98 @@ h1, h2, h3, h4 {
 }
 
 /* ============================================================
-   Animated Background Blobs
+   SVG Mesh Gradient Background (luma-inspired)
    ============================================================ */
 
 .shell {
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 15%, rgba(249, 115, 22, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 50% at 90% 10%, rgba(236, 72, 153, 0.10) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 60% at 50% 90%, rgba(139, 92, 246, 0.10) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 70% 60%, rgba(96, 165, 250, 0.08) 0%, transparent 50%),
-    var(--bg-base);
+  background: var(--bg-base);
 }
 
-.shell::before,
-.shell::after {
-  content: '';
+/* Full-viewport SVG mesh background */
+.mesh-bg {
   position: fixed;
-  border-radius: 50%;
-  filter: blur(100px);
-  pointer-events: none;
+  inset: 0;
   z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-.shell::before {
-  width: min(600px, 80vw);
-  height: min(600px, 80vw);
-  background: radial-gradient(circle, rgba(249, 115, 22, 0.18), rgba(236, 72, 153, 0.12), transparent 70%);
-  top: -15%;
-  right: -10%;
-  animation: blob-a 25s ease-in-out infinite;
+.mesh-bg svg {
+  width: 100%;
+  height: 100%;
 }
 
-.shell::after {
-  width: min(500px, 70vw);
-  height: min(500px, 70vw);
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.15), rgba(96, 165, 250, 0.10), transparent 70%);
-  bottom: -10%;
-  left: -10%;
-  animation: blob-b 30s ease-in-out infinite;
-}
+/* Slow organic drift for each orb */
+.mesh-orb--1 { animation: orb-drift-1 22s ease-in-out infinite; }
+.mesh-orb--2 { animation: orb-drift-2 28s ease-in-out infinite; }
+.mesh-orb--3 { animation: orb-drift-3 26s ease-in-out infinite; }
+.mesh-orb--4 { animation: orb-drift-4 30s ease-in-out infinite; }
+.mesh-orb--5 { animation: orb-drift-5 24s ease-in-out infinite; }
+.mesh-orb--6 { animation: orb-drift-6 27s ease-in-out infinite; }
+.mesh-orb--7 { animation: orb-drift-7 25s ease-in-out infinite; }
+.mesh-orb--8 { animation: orb-drift-8 23s ease-in-out infinite; }
 
-@keyframes blob-a {
+@keyframes orb-drift-1 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(30px, 40px) scale(1.05); }
-  66%      { transform: translate(-20px, -20px) scale(0.95); }
+  25%      { transform: translate(40px, 30px) scale(1.08); }
+  50%      { transform: translate(-20px, 60px) scale(0.95); }
+  75%      { transform: translate(30px, -25px) scale(1.04); }
+}
+@keyframes orb-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(-50px, 40px) scale(1.06); }
+  50%      { transform: translate(30px, -30px) scale(0.97); }
+  75%      { transform: translate(-20px, -50px) scale(1.03); }
+}
+@keyframes orb-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(35px, -45px) scale(1.1); }
+  50%      { transform: translate(-40px, 20px) scale(0.93); }
+  75%      { transform: translate(20px, 35px) scale(1.05); }
+}
+@keyframes orb-drift-4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(-30px, -30px) scale(1.07); }
+  50%      { transform: translate(45px, 25px) scale(0.96); }
+  75%      { transform: translate(-15px, 45px) scale(1.02); }
+}
+@keyframes orb-drift-5 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(45px, -20px) scale(1.05); }
+  50%      { transform: translate(-35px, -40px) scale(0.98); }
+  75%      { transform: translate(25px, 30px) scale(1.06); }
+}
+@keyframes orb-drift-6 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(-25px, 50px) scale(1.09); }
+  50%      { transform: translate(40px, -15px) scale(0.94); }
+  75%      { transform: translate(-35px, -30px) scale(1.03); }
+}
+@keyframes orb-drift-7 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(30px, 35px) scale(1.04); }
+  50%      { transform: translate(-45px, -25px) scale(1.08); }
+  75%      { transform: translate(20px, -40px) scale(0.97); }
+}
+@keyframes orb-drift-8 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(-40px, -35px) scale(1.06); }
+  50%      { transform: translate(25px, 45px) scale(0.95); }
+  75%      { transform: translate(35px, -20px) scale(1.08); }
 }
 
-@keyframes blob-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(-25px, -35px) scale(1.08); }
-  66%      { transform: translate(15px, 25px) scale(0.92); }
+/* Bottom fade overlay */
+.mesh-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(to top, var(--bg-base), transparent);
+  pointer-events: none;
 }
 
 /* ============================================================
@@ -1067,8 +1106,7 @@ h1, h2, h3, h4 {
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .shell::before,
-  .shell::after {
+  .mesh-orb {
     animation: none !important;
   }
 

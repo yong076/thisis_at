@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google';
+import { MeshBackground } from '@/components/public/mesh-background';
 import '@/app/globals.css';
 
 const display = Fraunces({
@@ -30,7 +31,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body className={`${display.variable} ${body.variable}`}>
-        <div className="shell">{children}</div>
+        <div className="shell">
+          <MeshBackground />
+          {children}
+        </div>
       </body>
     </html>
   );
