@@ -16,11 +16,11 @@ const body = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: 'thisis.at',
-  description: 'Link-in-bio + mini-site for artists, venues, and creators',
+  description: '아티스트, 공연장, 크리에이터를 위한 링크 인 바이오 미니사이트',
   metadataBase: new URL('https://thisis.at'),
   openGraph: {
     title: 'thisis.at',
-    description: 'Link-in-bio + mini-site for artists, venues, and creators',
+    description: '아티스트, 공연장, 크리에이터를 위한 링크 인 바이오 미니사이트',
     type: 'website',
     url: 'https://thisis.at'
   }
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body className={`${display.variable} ${body.variable}`}>
         <div className="shell">{children}</div>
       </body>

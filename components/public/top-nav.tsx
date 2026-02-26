@@ -7,9 +7,12 @@ export function TopNav() {
         thisis.at
       </Link>
       <nav className="nav-links" aria-label="Primary">
-        <Link href="/dashboard">Dashboard</Link>
-        <Link href="/editor/@lucid.band">Editor</Link>
-        <Link href="/@lucid.band">Example Profile</Link>
+        <Link href="/@lucid.band" className="nav-link">
+          데모
+        </Link>
+        <Link href="/admin" className="nav-link nav-link--cta">
+          대시보드
+        </Link>
       </nav>
     </header>
   );
