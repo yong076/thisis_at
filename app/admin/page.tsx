@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { DefaultShell } from '@/components/public/default-shell';
 import { listProfiles } from '@/lib/mock-data';
 import type { PublicProfile } from '@/lib/types';
 
@@ -45,17 +46,27 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <main className="page" style={{ textAlign: 'center', paddingTop: '6rem' }}>
-        <p className="subtitle">불러오는 중...</p>
-      </main>
+      <DefaultShell>
+        <main className="page" style={{ textAlign: 'center', paddingTop: '6rem' }}>
+          <p className="subtitle">불러오는 중...</p>
+        </main>
+      </DefaultShell>
     );
   }
 
   if (!authed) {
-    return <LoginForm {...{ username, setUsername, password, setPassword, error, onSubmit: handleLogin }} />;
+    return (
+      <DefaultShell>
+        <LoginForm {...{ username, setUsername, password, setPassword, error, onSubmit: handleLogin }} />
+      </DefaultShell>
+    );
   }
 
-  return <Dashboard onLogout={handleLogout} />;
+  return (
+    <DefaultShell>
+      <Dashboard onLogout={handleLogout} />
+    </DefaultShell>
+  );
 }
 
 /* ------------------------------------------------------------ */

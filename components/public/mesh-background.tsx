@@ -1,8 +1,42 @@
 'use client';
 
-export function MeshBackground() {
+type Props = {
+  colors?: string[];
+  baseColor?: string;
+  opacity?: number;
+};
+
+const DEFAULT_COLORS = [
+  '#ff7e5f', '#f59e0b', '#ec4899', '#a78bfa', '#60a5fa',
+  '#34d399', '#d946ef', '#f97316', '#fb7185', '#818cf8',
+];
+
+const DEFAULT_BASE = '#fff5ee';
+
+const ORB_POSITIONS = [
+  { cx: 1050, cy: 100, r: 340, op: 0.7 },
+  { cx: 180, cy: 60, r: 300, op: 0.55 },
+  { cx: 1150, cy: 420, r: 320, op: 0.5 },
+  { cx: 580, cy: 380, r: 380, op: 0.55 },
+  { cx: 120, cy: 680, r: 340, op: 0.45 },
+  { cx: 680, cy: 800, r: 300, op: 0.4 },
+  { cx: 480, cy: 80, r: 250, op: 0.45 },
+  { cx: 1250, cy: 720, r: 280, op: 0.5 },
+  { cx: 300, cy: 350, r: 260, op: 0.4 },
+  { cx: 900, cy: 200, r: 220, op: 0.35 },
+];
+
+// Cycle through orb animation classes (1–8)
+function orbClass(idx: number) {
+  return `mesh-orb mesh-orb--${(idx % 8) + 1}`;
+}
+
+export function MeshBackground({ colors, baseColor, opacity }: Props) {
+  const meshColors = colors ?? DEFAULT_COLORS;
+  const base = baseColor ?? DEFAULT_BASE;
+
   return (
-    <div className="mesh-bg" aria-hidden="true">
+    <div className="mesh-bg" aria-hidden="true" style={opacity !== undefined ? { opacity } : undefined}>
       <svg
         viewBox="0 0 1400 900"
         preserveAspectRatio="xMidYMid slice"
@@ -19,47 +53,25 @@ export function MeshBackground() {
           </filter>
         </defs>
 
-        {/* Base warm tint */}
-        <rect width="1400" height="900" fill="#fff5ee" />
+        <rect width="1400" height="900" fill={base} />
 
-        {/* Mesh gradient blobs — vivid & lush */}
         <g filter="url(#mesh-blur)">
-          {/* Top-right: vivid coral */}
-          <circle className="mesh-orb mesh-orb--1" cx="1050" cy="100" r="340" fill="#ff7e5f" opacity="0.7" />
-
-          {/* Top-left: golden amber */}
-          <circle className="mesh-orb mesh-orb--2" cx="180" cy="60" r="300" fill="#f59e0b" opacity="0.55" />
-
-          {/* Center-right: hot pink */}
-          <circle className="mesh-orb mesh-orb--3" cx="1150" cy="420" r="320" fill="#ec4899" opacity="0.5" />
-
-          {/* Center: rich lavender */}
-          <circle className="mesh-orb mesh-orb--4" cx="580" cy="380" r="380" fill="#a78bfa" opacity="0.55" />
-
-          {/* Bottom-left: sky blue */}
-          <circle className="mesh-orb mesh-orb--5" cx="120" cy="680" r="340" fill="#60a5fa" opacity="0.45" />
-
-          {/* Bottom-center: emerald mint */}
-          <circle className="mesh-orb mesh-orb--6" cx="680" cy="800" r="300" fill="#34d399" opacity="0.4" />
-
-          {/* Top-center: fuchsia / magenta */}
-          <circle className="mesh-orb mesh-orb--7" cx="480" cy="80" r="250" fill="#d946ef" opacity="0.45" />
-
-          {/* Bottom-right: tangerine orange */}
-          <circle className="mesh-orb mesh-orb--8" cx="1250" cy="720" r="280" fill="#f97316" opacity="0.5" />
-
-          {/* Extra: center-left rose for richness */}
-          <circle className="mesh-orb mesh-orb--3" cx="300" cy="350" r="260" fill="#fb7185" opacity="0.4" />
-
-          {/* Extra: top-right blue-violet accent */}
-          <circle className="mesh-orb mesh-orb--6" cx="900" cy="200" r="220" fill="#818cf8" opacity="0.35" />
+          {ORB_POSITIONS.map((orb, idx) => (
+            <circle
+              key={idx}
+              className={orbClass(idx)}
+              cx={orb.cx}
+              cy={orb.cy}
+              r={orb.r}
+              fill={meshColors[idx % meshColors.length]}
+              opacity={orb.op}
+            />
+          ))}
         </g>
 
-        {/* Subtle grain texture */}
         <rect width="1400" height="900" filter="url(#mesh-noise)" opacity="0.04" />
       </svg>
 
-      {/* Bottom fade to base */}
       <div className="mesh-fade" />
     </div>
   );

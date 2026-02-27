@@ -1,11 +1,10 @@
 import Link from 'next/link';
-import { SparkleLayer } from '@/components/public/sparkle-layer';
+import { DefaultShell } from '@/components/public/default-shell';
 import { TopNav } from '@/components/public/top-nav';
 
 export default function HomePage() {
   return (
-    <>
-      <SparkleLayer />
+    <DefaultShell>
       <main className="page">
         <TopNav />
 
@@ -75,6 +74,6 @@ export default function HomePage() {
           </p>
         </footer>
       </main>
-    </>
+    </DefaultShell>
   );
 }

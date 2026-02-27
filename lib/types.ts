@@ -7,7 +7,8 @@ export type BlockType =
   | 'TEXT_ANNOUNCEMENT'
   | 'MEDIA_GALLERY'
   | 'EVENTS'
-  | 'PLACE_INFO';
+  | 'PLACE_INFO'
+  | 'INSTAGRAM_EMBED';
 
 export type ProfileBlock = {
   id: string;
@@ -26,6 +27,17 @@ export type TrappistEvent = {
   ticketUrl?: string;
 };
 
+export type ProfileCustomization = {
+  themeId: string;
+  fontBody: string;
+  fontDisplay: string;
+  customAccentColor?: string;
+  buttonStyle?: 'gradient' | 'solid' | 'outline' | 'glass';
+  cardStyle?: 'glass' | 'solid' | 'border-only' | 'shadow';
+  showSparkles?: boolean;
+  profileLayout?: 'centered' | 'left-aligned';
+};
+
 export type PublicProfile = {
   id: string;
   handle: string;
@@ -39,4 +51,5 @@ export type PublicProfile = {
   connectedTrappistPlaceId?: string;
   blocks: ProfileBlock[];
   events: TrappistEvent[];
+  customization?: ProfileCustomization;
 };

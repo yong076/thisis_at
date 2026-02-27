@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import type { ProfileBlock, TrappistEvent } from '@/lib/types';
 import { formatDateTime } from '@/lib/format';
+import { InstagramEmbed } from './instagram-embed';
 
 type Props = {
   block: ProfileBlock;
@@ -123,6 +124,21 @@ export function BlockRenderer({ block, events }: Props) {
           <a href={url} target="_blank" rel="noreferrer noopener" className="button-link">
             <span>{provider} 열기</span>
           </a>
+        </article>
+      );
+    }
+
+    case 'INSTAGRAM_EMBED': {
+      const postUrl = (block.config.postUrl as string | undefined) ?? '';
+      const caption = (block.config.caption as string | undefined) ?? undefined;
+      return (
+        <article className="block animate-fade-up">
+          <h3>{block.title ?? 'Instagram'}</h3>
+          {postUrl ? (
+            <InstagramEmbed postUrl={postUrl} caption={caption} />
+          ) : (
+            <p className="subtitle">인스타그램 URL이 설정되지 않았습니다.</p>
+          )}
         </article>
       );
     }

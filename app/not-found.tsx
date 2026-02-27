@@ -1,10 +1,9 @@
 import Link from 'next/link';
-import { SparkleLayer } from '@/components/public/sparkle-layer';
+import { DefaultShell } from '@/components/public/default-shell';
 
 export default function NotFoundPage() {
   return (
-    <>
-      <SparkleLayer />
+    <DefaultShell>
       <main className="page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80dvh' }}>
         <section className="card animate-fade-up" style={{ padding: '3rem 2rem', textAlign: 'center', maxWidth: 420 }}>
           <h1 style={{ fontSize: '3.5rem', margin: '0 0 0.5rem' }}>
@@ -18,6 +17,6 @@ export default function NotFoundPage() {
           </Link>
         </section>
       </main>
-    </>
+    </DefaultShell>
   );
 }

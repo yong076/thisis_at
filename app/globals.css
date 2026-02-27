@@ -1099,6 +1099,328 @@ h1, h2, h3, h4 {
   .admin-stats {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .theme-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
+
+  .font-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .style-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .editor-tabs {
+    flex-wrap: wrap;
+  }
+}
+
+/* ============================================================
+   Editor Tabs
+   ============================================================ */
+
+.editor-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+
+.editor-tab {
+  flex: 1;
+  padding: 0.55rem 1rem;
+  border-radius: calc(var(--radius-sm) - 2px);
+  border: none;
+  background: transparent;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.editor-tab:hover {
+  color: var(--text-primary);
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.editor-tab--active {
+  color: white;
+  background: var(--gradient-button);
+}
+
+.editor-tab--active:hover {
+  color: white;
+  background: var(--gradient-button);
+}
+
+/* ============================================================
+   Theme Grid
+   ============================================================ */
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+
+.theme-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--line);
+  background: var(--surface-strong);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 200ms ease;
+  padding: 0;
+  text-align: left;
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.theme-card:hover {
+  border-color: var(--accent-violet, #8b5cf6);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.theme-card--selected {
+  border-color: var(--accent-violet, #8b5cf6);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+.theme-card-preview {
+  height: 60px;
+  width: 100%;
+}
+
+.theme-card-info {
+  padding: 0.5rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.theme-card-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.theme-card-id {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.theme-card-check {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--gradient-button);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* ============================================================
+   Font Grid
+   ============================================================ */
+
+.font-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.5rem;
+}
+
+.font-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--line);
+  background: var(--surface-strong);
+  cursor: pointer;
+  transition: all 180ms ease;
+  text-align: left;
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.font-card:hover {
+  border-color: var(--accent-violet, #8b5cf6);
+  transform: translateY(-1px);
+}
+
+.font-card--selected {
+  border-color: var(--accent-violet, #8b5cf6);
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.font-card-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.font-card-preview {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.font-card-category {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.font-card-check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--gradient-button);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+/* ============================================================
+   Style Options
+   ============================================================ */
+
+.style-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.style-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--line);
+  background: var(--surface-strong);
+  cursor: pointer;
+  transition: all 180ms ease;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.style-option:hover {
+  border-color: var(--accent-violet, #8b5cf6);
+}
+
+.style-preview {
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.style-preview--btn-gradient {
+  background: var(--gradient-button);
+  color: white;
+}
+
+.style-preview--btn-solid {
+  background: var(--accent-violet, #8b5cf6);
+  color: white;
+}
+
+.style-preview--btn-outline {
+  background: transparent;
+  border: 2px solid var(--accent-violet, #8b5cf6);
+  color: var(--accent-violet, #8b5cf6);
+}
+
+.style-preview--btn-glass {
+  background: rgba(139, 92, 246, 0.15);
+  backdrop-filter: blur(8px);
+  color: var(--accent-violet, #8b5cf6);
+}
+
+.style-preview--card-glass {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 0.8rem;
+}
+
+.style-preview--card-solid {
+  background: white;
+  padding: 0.5rem 0.8rem;
+}
+
+.style-preview--card-border-only {
+  background: transparent;
+  border: 2px solid var(--line);
+  padding: 0.5rem 0.8rem;
+}
+
+.style-preview--card-shadow {
+  background: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0.8rem;
+}
+
+.style-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.style-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.style-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-violet, #8b5cf6);
+  cursor: pointer;
+}
+
+/* ============================================================
+   Instagram Embed
+   ============================================================ */
+
+.instagram-embed-wrap {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 }
 
 /* ============================================================

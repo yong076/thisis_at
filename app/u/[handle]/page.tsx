@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BlockRenderer } from '@/components/public/block-renderer';
 import { ProfileHeader } from '@/components/public/profile-header';
-import { SparkleLayer } from '@/components/public/sparkle-layer';
+import { ThemedProfileShell } from '@/components/public/themed-profile-shell';
 import { getProfileByHandle } from '@/lib/mock-data';
 import { normalizeHandle } from '@/lib/handle';
 
@@ -34,10 +34,15 @@ export default function PublicProfilePage({ params }: { params: { handle: string
   }
 
   const blocks = profile.blocks.sort((a, b) => a.order - b.order);
+  const customization = profile.customization;
 
   return (
-    <>
-      <SparkleLayer />
+    <ThemedProfileShell
+      themeId={customization?.themeId}
+      fontBodyId={customization?.fontBody}
+      fontDisplayId={customization?.fontDisplay}
+      showSparkles={customization?.showSparkles}
+    >
       <main className="page page--narrow">
         <header className="top-nav">
           <Link href="/" className="brand">
@@ -59,6 +64,6 @@ export default function PublicProfilePage({ params }: { params: { handle: string
           </p>
         </footer>
       </main>
-    </>
+    </ThemedProfileShell>
   );
 }
