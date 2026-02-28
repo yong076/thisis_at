@@ -21,9 +21,14 @@ export async function createProfile(
     return { error: '로그인이 필요합니다.' };
   }
 
-  // Only ADMIN can create profiles
+  // Non-admin users can create up to 1 profile
   if (session.user.role !== 'ADMIN') {
-    return { error: '권한이 없습니다.' };
+    const count = await prisma.profile.count({
+      where: { userId: session.user.id },
+    });
+    if (count >= 1) {
+      return { error: '프로필은 최대 1개까지 생성할 수 있습니다.' };
+    }
   }
 
   const rawHandle = (formData.get('handle') as string) ?? '';

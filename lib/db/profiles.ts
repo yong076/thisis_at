@@ -100,8 +100,9 @@ export async function getProfileById(profileId: string): Promise<PublicProfile |
   return profile ? toPublicProfile(profile) : null;
 }
 
-export async function listProfiles(): Promise<PublicProfile[]> {
+export async function listProfiles(userId?: string): Promise<PublicProfile[]> {
   const profiles = await prisma.profile.findMany({
+    where: userId ? { userId } : undefined,
     include: profileInclude,
     orderBy: { createdAt: 'desc' },
   });

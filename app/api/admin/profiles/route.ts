@@ -10,8 +10,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
   }
 
+  // Non-admin users can create up to 1 profile
   if (session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
+    const count = await prisma.profile.count({
+      where: { userId: session.user.id },
+    });
+    if (count >= 1) {
+      return NextResponse.json({ error: '프로필은 최대 1개까지 생성할 수 있습니다.' }, { status: 403 });
+    }
   }
 
   const body = await req.json();

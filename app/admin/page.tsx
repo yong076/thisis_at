@@ -11,12 +11,10 @@ export default async function AdminPage() {
     redirect('/login');
   }
 
-  // Only ADMIN can access
-  if (session.user.role !== 'ADMIN') {
-    redirect('/');
-  }
-
-  const profiles = await listProfiles();
+  // ADMIN sees all profiles; regular users see only their own
+  const profiles = session.user.role === 'ADMIN'
+    ? await listProfiles()
+    : await listProfiles(session.user.id);
 
   return (
     <DefaultShell>
