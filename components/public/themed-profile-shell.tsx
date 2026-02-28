@@ -12,6 +12,8 @@ type Props = {
   fontBodyId?: string;
   fontDisplayId?: string;
   showSparkles?: boolean;
+  buttonStyle?: string;
+  cardStyle?: string;
   children: React.ReactNode;
 };
 
@@ -20,6 +22,8 @@ export function ThemedProfileShell({
   fontBodyId,
   fontDisplayId,
   showSparkles = true,
+  buttonStyle,
+  cardStyle,
   children,
 }: Props) {
   const theme: ThemeConfig = getThemeById(themeId ?? DEFAULT_THEME_ID);
@@ -79,7 +83,7 @@ export function ThemedProfileShell({
   }
 
   return (
-    <div className="shell" style={shellStyle}>
+    <div className={`shell btn-style--${buttonStyle ?? 'gradient'} card-style--${cardStyle ?? 'glass'}`} style={shellStyle}>
       <MeshBackground
         colors={theme.bgMesh}
         baseColor={theme.meshBaseColor}

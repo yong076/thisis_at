@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getProfileByHandle } from '@/lib/mock-data';
+import { getProfileByHandle } from '@/lib/db';
 import { validateHandle } from '@/lib/handle';
 
 export async function GET(_request: Request, { params }: { params: { handle: string } }) {
@@ -10,13 +10,13 @@ export async function GET(_request: Request, { params }: { params: { handle: str
     return NextResponse.json(
       {
         ok: false,
-        error: validity.reason
+        error: validity.reason,
       },
       { status: 400 }
     );
   }
 
-  const profile = getProfileByHandle(normalized);
+  const profile = await getProfileByHandle(normalized);
 
   if (!profile) {
     return NextResponse.json(

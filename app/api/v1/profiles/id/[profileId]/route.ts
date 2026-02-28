@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getProfileById } from '@/lib/mock-data';
+import { getProfileById } from '@/lib/db';
 
 export async function GET(_request: Request, { params }: { params: { profileId: string } }) {
-  const profile = getProfileById(params.profileId);
+  const profile = await getProfileById(params.profileId);
 
   if (!profile) {
     return NextResponse.json(

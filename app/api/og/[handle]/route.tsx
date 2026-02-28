@@ -1,10 +1,8 @@
 import { ImageResponse } from 'next/og';
-import { getProfileByHandle } from '@/lib/mock-data';
-
-export const runtime = 'edge';
+import { getProfileByHandle } from '@/lib/db';
 
 export async function GET(_request: Request, { params }: { params: { handle: string } }) {
-  const profile = getProfileByHandle(params.handle);
+  const profile = await getProfileByHandle(params.handle);
 
   const title = profile ? profile.displayName : 'thisis.at';
   const subtitle = profile ? `@${profile.handle}` : 'link-in-bio for artists, venues, creators';

@@ -2,17 +2,23 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BlockRenderer } from '@/components/public/block-renderer';
 import { ProfileHeader } from '@/components/public/profile-header';
-import { SparkleLayer } from '@/components/public/sparkle-layer';
+import { DefaultShell } from '@/components/public/default-shell';
 import { TopNav } from '@/components/public/top-nav';
-import { getProfileByHandle } from '@/lib/mock-data';
+import { AnalyticsTracker } from '@/components/public/analytics-tracker';
+import { TrackedBlockWrapper } from '@/components/public/tracked-block-wrapper';
+import { AnimatedBlock } from '@/components/public/animated-block';
+import { VisitorCount } from '@/components/public/visitor-count';
+import { getProfileByHandle } from '@/lib/db';
 import { normalizeHandle } from '@/lib/handle';
+import { getT } from '@/lib/i18n/server';
 
 export async function generateMetadata({ params }: { params: { handle: string } }): Promise<Metadata> {
-  const profile = getProfileByHandle(params.handle);
+  const profile = await getProfileByHandle(params.handle);
+  const t = getT();
 
   if (!profile) {
     return {
-      title: 'Profile not found | thisis.at'
+      title: t('profile.notFound'),
     };
   }
 
@@ -22,14 +28,14 @@ export async function generateMetadata({ params }: { params: { handle: string } 
     openGraph: {
       title: `${profile.displayName} (@${profile.handle})`,
       description: profile.bio,
-      images: [{ url: `/api/og/@${profile.handle}` }]
-    }
+      images: [{ url: `/api/og/@${profile.handle}` }],
+    },
   };
 }
 
-export default function PublicProfilePage({ params }: { params: { handle: string } }) {
+export default async function PublicProfilePage({ params }: { params: { handle: string } }) {
   const normalized = normalizeHandle(params.handle);
-  const profile = getProfileByHandle(normalized);
+  const profile = await getProfileByHandle(normalized);
 
   if (!profile) {
     notFound();
@@ -38,17 +44,27 @@ export default function PublicProfilePage({ params }: { params: { handle: string
   const blocks = profile.blocks.sort((a, b) => a.order - b.order);
 
   return (
-    <>
-      <SparkleLayer />
+    <DefaultShell>
       <main className="page">
         <TopNav />
         <ProfileHeader profile={profile} />
+        <AnalyticsTracker profileId={profile.id} />
         <section className="block-list">
-          {blocks.map((block) => (
-            <BlockRenderer key={block.id} block={block} events={profile.events} />
+          {blocks.map((block, i) => (
+            <AnimatedBlock key={block.id} index={i}>
+              <TrackedBlockWrapper profileId={profile.id} blockId={block.id} blockType={block.type}>
+                <BlockRenderer block={block} events={profile.events} />
+              </TrackedBlockWrapper>
+            </AnimatedBlock>
           ))}
         </section>
+
+        {profile.showVisitorCount && (
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <VisitorCount profileId={profile.id} />
+          </div>
+        )}
       </main>
-    </>
+    </DefaultShell>
   );
 }

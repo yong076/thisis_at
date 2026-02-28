@@ -1,5 +1,6 @@
 const RESERVED = new Set([
   'admin',
+  'analytics',
   'api',
   'support',
   'terms',

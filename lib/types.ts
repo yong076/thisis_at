@@ -1,4 +1,12 @@
-export type ProfileType = 'ARTIST' | 'VENUE' | 'CREATOR';
+export type ProfileType =
+  | 'ARTIST'
+  | 'VENUE'
+  | 'CREATOR'
+  | 'BUSINESS'
+  | 'INFLUENCER'
+  | 'PERSONAL'
+  | 'RESTAURANT'
+  | 'ORGANIZATION';
 
 export type BlockType =
   | 'LINK_BUTTON'
@@ -8,7 +16,13 @@ export type BlockType =
   | 'MEDIA_GALLERY'
   | 'EVENTS'
   | 'PLACE_INFO'
-  | 'INSTAGRAM_EMBED';
+  | 'TICKET_CTA'
+  | 'PRODUCT_CARDS'
+  | 'INSTAGRAM_EMBED'
+  | 'FAQ'
+  | 'BUSINESS_HOURS'
+  | 'RICH_TEXT'
+  | 'TEAM_MEMBERS';
 
 export type ProfileBlock = {
   id: string;
@@ -38,6 +52,12 @@ export type ProfileCustomization = {
   profileLayout?: 'centered' | 'left-aligned';
 };
 
+export type ProfileCategory = {
+  slug: string;
+  nameKo: string;
+  icon?: string;
+};
+
 export type PublicProfile = {
   id: string;
   handle: string;
@@ -49,7 +69,9 @@ export type PublicProfile = {
   coverUrl?: string;
   connectedTrappistArtistId?: string;
   connectedTrappistPlaceId?: string;
+  category?: ProfileCategory;
   blocks: ProfileBlock[];
   events: TrappistEvent[];
+  showVisitorCount?: boolean;
   customization?: ProfileCustomization;
 };

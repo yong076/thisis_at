@@ -1,19 +1,18 @@
 import { notFound } from 'next/navigation';
-import { SparkleLayer } from '@/components/public/sparkle-layer';
+import { DefaultShell } from '@/components/public/default-shell';
 import { TopNav } from '@/components/public/top-nav';
-import { getProfileByHandle } from '@/lib/mock-data';
+import { getProfileByHandle } from '@/lib/db';
 import { formatDateTime } from '@/lib/format';
 
-export default function PublicEventsPage({ params }: { params: { handle: string } }) {
-  const profile = getProfileByHandle(params.handle);
+export default async function PublicEventsPage({ params }: { params: { handle: string } }) {
+  const profile = await getProfileByHandle(params.handle);
 
   if (!profile) {
     notFound();
   }
 
   return (
-    <>
-      <SparkleLayer />
+    <DefaultShell>
       <main className="page">
         <TopNav />
         <section className="card dash-card">
@@ -37,6 +36,6 @@ export default function PublicEventsPage({ params }: { params: { handle: string 
           ))}
         </section>
       </main>
-    </>
+    </DefaultShell>
   );
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getEvents } from '@/lib/mock-data';
+import { getEvents } from '@/lib/db';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -8,10 +8,10 @@ export async function GET(request: Request) {
   const placeId = searchParams.get('place_id') ?? undefined;
   const from = searchParams.get('from') ?? undefined;
 
-  const events = getEvents({
+  const events = await getEvents({
     artistId,
     placeId,
-    from
+    from,
   });
 
   return NextResponse.json({

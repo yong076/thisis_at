@@ -1,3 +1,5 @@
+'use client';
+
 import { MeshBackground } from './mesh-background';
 import { SparkleLayer } from './sparkle-layer';
 
