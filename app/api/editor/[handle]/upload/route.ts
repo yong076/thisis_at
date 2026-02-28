@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { put, del } from '@vercel/blob';
 import { prisma } from '@/lib/prisma';
 import { requireProfileOwnership } from '@/lib/auth-helpers';
 
@@ -8,7 +7,8 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 /**
  * POST /api/editor/[handle]/upload
- * Upload avatar or cover image via Vercel Blob Storage.
+ * Upload avatar or cover image.
+ * Uses Vercel Blob when BLOB_READ_WRITE_TOKEN is set, otherwise base64 data URL.
  * Body: multipart/form-data with "file" field and optional "field" (avatarUrl | coverUrl).
  */
 export async function POST(
@@ -48,35 +48,45 @@ export async function POST(
     return NextResponse.json({ error: '잘못된 필드입니다.' }, { status: 400 });
   }
 
-  // Delete existing blob if present
-  const currentProfile = await prisma.profile.findUnique({
-    where: { id: ownership.profile.id },
-    select: { avatarUrl: true, coverUrl: true },
-  });
+  let url: string;
 
-  const existingUrl = currentProfile?.[field];
-  if (existingUrl && existingUrl.includes('.vercel-storage.com')) {
-    try {
-      await del(existingUrl);
-    } catch {
-      // ignore deletion errors
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    // Use Vercel Blob when token is available
+    const { put, del } = await import('@vercel/blob');
+
+    // Delete existing blob if present
+    const currentProfile = await prisma.profile.findUnique({
+      where: { id: ownership.profile.id },
+      select: { avatarUrl: true, coverUrl: true },
+    });
+
+    const existingUrl = currentProfile?.[field];
+    if (existingUrl && existingUrl.includes('.vercel-storage.com')) {
+      try {
+        await del(existingUrl);
+      } catch {
+        // ignore deletion errors
+      }
     }
+
+    const ext = file.name.split('.').pop() || 'jpg';
+    const path = `thisis-at/${handle}/${field}-${Date.now()}.${ext}`;
+    const blob = await put(path, file, {
+      access: 'public',
+      contentType: file.type,
+    });
+    url = blob.url;
+  } else {
+    // Fallback: store as base64 data URL
+    const buffer = Buffer.from(await file.arrayBuffer());
+    url = `data:${file.type};base64,${buffer.toString('base64')}`;
   }
-
-  // Upload new file
-  const ext = file.name.split('.').pop() || 'jpg';
-  const path = `thisis-at/${handle}/${field}-${Date.now()}.${ext}`;
-
-  const blob = await put(path, file, {
-    access: 'public',
-    contentType: file.type,
-  });
 
   // Update profile
   await prisma.profile.update({
     where: { id: ownership.profile.id },
-    data: { [field]: blob.url },
+    data: { [field]: url },
   });
 
-  return NextResponse.json({ ok: true, url: blob.url });
+  return NextResponse.json({ ok: true, url });
 }
