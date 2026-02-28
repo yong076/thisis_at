@@ -65,8 +65,8 @@ export function BlockCard({ block, handle, onEdit, onDelete, onToggle, dragHandl
           </button>
           <span className="block-card-icon">{meta?.icon ?? '📦'}</span>
           <div className="block-card-info">
+            <span className="block-card-title">{block.title || meta?.labelKo || block.type}</span>
             <span className="block-card-type">{meta?.labelKo ?? block.type}</span>
-            {block.title && <span className="block-card-title">{block.title}</span>}
           </div>
         </div>
         <div className="block-card-actions">

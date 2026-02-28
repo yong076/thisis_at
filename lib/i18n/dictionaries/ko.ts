@@ -114,6 +114,12 @@ export const ko: Dictionary = {
   'editor.saveTheme': '테마 저장',
   'editor.saveFonts': '폰트 저장',
   'editor.saveStyle': '스타일 저장',
+  'editor.nav.links': '링크',
+  'editor.nav.appearance': '외관',
+  'editor.saveAppearance': '외관 저장',
+  'editor.tab.edit': '편집',
+  'editor.preview': '미리보기',
+  'editor.changeAvatar': '프로필 사진 변경',
 
   // ─── Editor: Theme Categories ──────────────────────────────────
   'theme.category.vibrant': '비비드',

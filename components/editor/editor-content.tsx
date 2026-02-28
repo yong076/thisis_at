@@ -16,12 +16,12 @@ import type { PublicProfile, ProfileBlock, BlockType } from '@/lib/types';
 import type { ThemeConfig } from '@/lib/themes';
 import type { FontOption } from '@/lib/fonts';
 
-type Tab = 'blocks' | 'theme' | 'fonts' | 'style' | 'code';
+type EditorPage = 'links' | 'appearance';
 type MobileView = 'edit' | 'preview';
 
 export function EditorContent({ profile }: { profile: PublicProfile }) {
   const t = useT();
-  const [activeTab, setActiveTab] = useState<Tab>('blocks');
+  const [activePage, setActivePage] = useState<EditorPage>('links');
   const [blocks, setBlocks] = useState<ProfileBlock[]>(
     [...profile.blocks].sort((a, b) => a.order - b.order),
   );
@@ -35,6 +35,9 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
   // Profile editing state
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatarUrl ?? null);
 
+  // Code editor toggle
+  const [showCodeEditor, setShowCodeEditor] = useState(false);
+
   // Preview-triggered dialogs
   const [editingBlock, setEditingBlock] = useState<ProfileBlock | null>(null);
   const [insertIndex, setInsertIndex] = useState<number | null>(null);
@@ -46,14 +49,6 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
     () => ({ ...profile, avatarUrl: avatarUrl ?? undefined }),
     [profile, avatarUrl],
   );
-
-  const tabs: { id: Tab; labelKey: string; icon: string }[] = [
-    { id: 'blocks', labelKey: 'editor.tab.blocks', icon: '📦' },
-    { id: 'theme', labelKey: 'editor.tab.theme', icon: '🎨' },
-    { id: 'fonts', labelKey: 'editor.tab.fonts', icon: '✍️' },
-    { id: 'style', labelKey: 'editor.tab.style', icon: '💎' },
-    { id: 'code', labelKey: 'editor.tab.code', icon: '⌨️' },
-  ];
 
   const handleBlocksChange = useCallback((newBlocks: ProfileBlock[]) => {
     setBlocks(newBlocks);
@@ -105,193 +100,262 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
   );
 
   return (
-    <main className="editor-layout">
-      {/* Left Panel: Controls */}
-      <div className={`editor-controls ${mobileView === 'preview' ? 'editor-controls--hidden-mobile' : ''}`}>
-        <header className="admin-header">
-          <Link href="/admin" className="brand">
+    <>
+      {/* ─── Top Navigation Bar ─────────────────────────────── */}
+      <nav className="editor-topnav">
+        <div className="editor-topnav-inner">
+          <Link href="/admin" className="editor-topnav-brand">
             thisis.at
           </Link>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <LanguageSwitcher />
-            <Link href={`/editor/@${profile.handle}/analytics`} className="button-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.85rem' }}>
+
+          <div className="editor-topnav-links">
+            <button
+              type="button"
+              className={`editor-topnav-item ${activePage === 'links' ? 'editor-topnav-item--active' : ''}`}
+              onClick={() => setActivePage('links')}
+            >
+              {t('editor.nav.links')}
+            </button>
+            <button
+              type="button"
+              className={`editor-topnav-item ${activePage === 'appearance' ? 'editor-topnav-item--active' : ''}`}
+              onClick={() => setActivePage('appearance')}
+            >
+              {t('editor.nav.appearance')}
+            </button>
+            <Link
+              href={`/editor/@${profile.handle}/analytics`}
+              className="editor-topnav-item"
+            >
               {t('nav.analytics')}
             </Link>
-            <Link href={`/@${profile.handle}`} className="button-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.85rem' }}>
+          </div>
+
+          <div className="editor-topnav-right">
+            <LanguageSwitcher />
+            <Link
+              href={`/@${profile.handle}`}
+              className="editor-topnav-view-btn"
+            >
               {t('nav.viewProfile')}
             </Link>
           </div>
-        </header>
+        </div>
+      </nav>
 
-        {/* Profile Card with Avatar Upload */}
-        <section className="card dash-card editor-profile-card">
-          <div className="editor-profile-row">
-            <AvatarUpload
+      {/* ─── 2-Column Content ───────────────────────────────── */}
+      <main className="editor-layout">
+        {/* Left: Editing Area */}
+        <div className={`editor-content-area ${mobileView === 'preview' ? 'editor-content-area--hidden-mobile' : ''}`}>
+          {/* ── Links Page ──────────────────────────────────── */}
+          {activePage === 'links' && (
+            <>
+              {/* Profile Card with Avatar Upload */}
+              <section className="card dash-card editor-profile-card">
+                <div className="editor-profile-row">
+                  <AvatarUpload
+                    handle={profile.handle}
+                    displayName={profile.displayName}
+                    avatarUrl={avatarUrl}
+                    onAvatarChange={setAvatarUrl}
+                  />
+                  <div className="editor-profile-info">
+                    <h1 style={{ margin: 0, fontSize: '1.15rem' }}>
+                      <span className="gradient-text">@{profile.handle}</span>
+                    </h1>
+                    <p className="subtitle" style={{ margin: '0.25rem 0 0', fontSize: '0.85rem' }}>
+                      {t('editor.subtitle')}
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Links header with code editor toggle */}
+              <div className="links-page-header">
+                <h2>{t('editor.nav.links')}</h2>
+                <button
+                  type="button"
+                  className={`code-editor-toggle ${showCodeEditor ? 'code-editor-toggle--active' : ''}`}
+                  onClick={() => setShowCodeEditor(!showCodeEditor)}
+                  title="Code Editor"
+                >
+                  {'</>'}
+                </button>
+              </div>
+
+              {showCodeEditor ? (
+                <CodeEditorTab
+                  blocks={blocks}
+                  handle={profile.handle}
+                  onBlocksChange={handleBlocksChange}
+                />
+              ) : (
+                <BlocksTab
+                  blocks={blocks}
+                  handle={profile.handle}
+                  profileType={profile.type}
+                  onBlocksChange={handleBlocksChange}
+                />
+              )}
+            </>
+          )}
+
+          {/* ── Appearance Page ─────────────────────────────── */}
+          {activePage === 'appearance' && (
+            <AppearancePage
+              selectedTheme={selectedTheme}
+              onSelectTheme={setSelectedTheme}
+              selectedFontBody={selectedFontBody}
+              selectedFontDisplay={selectedFontDisplay}
+              onSelectBody={setSelectedFontBody}
+              onSelectDisplay={setSelectedFontDisplay}
+              buttonStyle={buttonStyle}
+              cardStyle={cardStyle}
+              showSparkles={showSparkles}
+              onButtonStyle={setButtonStyle}
+              onCardStyle={setCardStyle}
+              onShowSparkles={setShowSparkles}
               handle={profile.handle}
-              displayName={profile.displayName}
-              avatarUrl={avatarUrl}
-              onAvatarChange={setAvatarUrl}
             />
-            <div className="editor-profile-info">
-              <h1 style={{ margin: 0, fontSize: '1.1rem' }}>
-                <span className="gradient-text">@{profile.handle}</span>
-              </h1>
-              <p className="subtitle" style={{ margin: '0.25rem 0 0', fontSize: '0.85rem' }}>
-                {t('editor.subtitle')}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <div className="editor-tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`editor-tab ${activeTab === tab.id ? 'editor-tab--active' : ''}`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              <span className="editor-tab-icon">{tab.icon}</span>
-              {t(tab.labelKey)}
-            </button>
-          ))}
+          )}
         </div>
 
-        {activeTab === 'blocks' && (
-          <BlocksTab
+        {/* Right: Live Preview */}
+        <div className={`editor-preview-pane ${mobileView === 'preview' ? 'editor-preview-pane--show-mobile' : ''}`}>
+          <LivePreview
+            profile={liveProfile}
             blocks={blocks}
-            handle={profile.handle}
-            profileType={profile.type}
-            onBlocksChange={handleBlocksChange}
-          />
-        )}
-        {activeTab === 'theme' && (
-          <ThemeTab
-            selectedTheme={selectedTheme}
-            onSelect={setSelectedTheme}
-            handle={profile.handle}
-          />
-        )}
-        {activeTab === 'fonts' && (
-          <FontsTab
-            selectedBody={selectedFontBody}
-            selectedDisplay={selectedFontDisplay}
-            onSelectBody={setSelectedFontBody}
-            onSelectDisplay={setSelectedFontDisplay}
-            handle={profile.handle}
-          />
-        )}
-        {activeTab === 'style' && (
-          <StyleTab
+            themeId={selectedTheme}
+            fontBodyId={selectedFontBody}
+            fontDisplayId={selectedFontDisplay}
             buttonStyle={buttonStyle}
             cardStyle={cardStyle}
             showSparkles={showSparkles}
-            onButtonStyle={setButtonStyle}
-            onCardStyle={setCardStyle}
-            onShowSparkles={setShowSparkles}
-            handle={profile.handle}
+            onEditBlock={handlePreviewEdit}
+            onToggleBlock={handlePreviewToggle}
+            onDeleteBlock={handlePreviewDelete}
+            onInsertBlock={handlePreviewInsert}
           />
-        )}
-        {activeTab === 'code' && (
-          <CodeEditorTab
-            blocks={blocks}
-            handle={profile.handle}
-            onBlocksChange={handleBlocksChange}
-          />
-        )}
-      </div>
+        </div>
 
-      {/* Right Panel: Live Preview */}
-      <div className={`editor-preview-pane ${mobileView === 'edit' ? 'editor-preview-pane--hidden-mobile' : 'editor-preview-pane--show-mobile'}`}>
-        <LivePreview
-          profile={liveProfile}
-          blocks={blocks}
-          themeId={selectedTheme}
-          fontBodyId={selectedFontBody}
-          fontDisplayId={selectedFontDisplay}
-          buttonStyle={buttonStyle}
-          cardStyle={cardStyle}
-          showSparkles={showSparkles}
-          onEditBlock={handlePreviewEdit}
-          onToggleBlock={handlePreviewToggle}
-          onDeleteBlock={handlePreviewDelete}
-          onInsertBlock={handlePreviewInsert}
+        {/* Mobile Bottom Tab Bar */}
+        <div className="mobile-bottom-bar">
+          <button
+            type="button"
+            className={`mobile-bottom-tab ${mobileView === 'edit' ? 'mobile-bottom-tab--active' : ''}`}
+            onClick={() => setMobileView('edit')}
+          >
+            <span aria-hidden="true">✏️</span>
+            {t('editor.tab.edit')}
+          </button>
+          <button
+            type="button"
+            className={`mobile-bottom-tab ${mobileView === 'preview' ? 'mobile-bottom-tab--active' : ''}`}
+            onClick={() => setMobileView('preview')}
+          >
+            <span aria-hidden="true">👁️</span>
+            {t('editor.preview')}
+          </button>
+        </div>
+
+        {/* Edit Block Dialog (from preview click) */}
+        <BlockEditDialog
+          open={!!editingBlock}
+          block={editingBlock}
+          handle={profile.handle}
+          onClose={() => setEditingBlock(null)}
+          onSaved={handleBlockSaved}
         />
-      </div>
 
-      {/* Mobile Bottom Tab Bar */}
-      <div className="mobile-bottom-bar">
-        <button
-          type="button"
-          className={`mobile-bottom-tab ${mobileView === 'edit' ? 'mobile-bottom-tab--active' : ''}`}
-          onClick={() => setMobileView('edit')}
-        >
-          <span>✏️</span>
-          {t('editor.tab.edit') || '편집'}
-        </button>
-        <button
-          type="button"
-          className={`mobile-bottom-tab ${mobileView === 'preview' ? 'mobile-bottom-tab--active' : ''}`}
-          onClick={() => setMobileView('preview')}
-        >
-          <span>👁️</span>
-          {t('editor.preview') || '미리보기'}
-        </button>
-      </div>
+        {/* Insert Block Type Selector (from preview + button) */}
+        <BlockAddDialog
+          open={insertIndex !== null}
+          profileType={profile.type}
+          onClose={() => setInsertIndex(null)}
+          onSelect={handleBlockTypeSelected}
+        />
 
-      {/* Edit Block Dialog (from preview click) */}
-      <BlockEditDialog
-        open={!!editingBlock}
-        block={editingBlock}
-        handle={profile.handle}
-        onClose={() => setEditingBlock(null)}
-        onSaved={handleBlockSaved}
-      />
-
-      {/* Insert Block Type Selector (from preview + button) */}
-      <BlockAddDialog
-        open={insertIndex !== null}
-        profileType={profile.type}
-        onClose={() => setInsertIndex(null)}
-        onSelect={handleBlockTypeSelected}
-      />
-
-      {/* New Block Form (after type selection from preview) */}
-      <BlockEditDialog
-        open={!!newBlockType}
-        block={null}
-        newBlockType={newBlockType ?? undefined}
-        handle={profile.handle}
-        onClose={() => setNewBlockType(null)}
-        onSaved={handleBlockSaved}
-      />
-    </main>
+        {/* New Block Form (after type selection from preview) */}
+        <BlockEditDialog
+          open={!!newBlockType}
+          block={null}
+          newBlockType={newBlockType ?? undefined}
+          handle={profile.handle}
+          onClose={() => setNewBlockType(null)}
+          onSaved={handleBlockSaved}
+        />
+      </main>
+    </>
   );
 }
 
-/* ─── Theme Tab ──────────────────────────────────────────────────── */
+/* ─── Appearance Page (Merged Theme + Fonts + Style) ──────── */
 
-function ThemeTab({
-  selectedTheme,
-  onSelect,
-  handle,
-}: {
+type AppearanceProps = {
   selectedTheme: string;
-  onSelect: (id: string) => void;
+  onSelectTheme: (id: string) => void;
+  selectedFontBody: string;
+  selectedFontDisplay: string;
+  onSelectBody: (id: string) => void;
+  onSelectDisplay: (id: string) => void;
+  buttonStyle: string;
+  cardStyle: string;
+  showSparkles: boolean;
+  onButtonStyle: (s: string) => void;
+  onCardStyle: (s: string) => void;
+  onShowSparkles: (b: boolean) => void;
   handle: string;
-}) {
+};
+
+function AppearancePage({
+  selectedTheme,
+  onSelectTheme,
+  selectedFontBody,
+  selectedFontDisplay,
+  onSelectBody,
+  onSelectDisplay,
+  buttonStyle,
+  cardStyle,
+  showSparkles,
+  onButtonStyle,
+  onCardStyle,
+  onShowSparkles,
+  handle,
+}: AppearanceProps) {
   const t = useT();
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
 
   const categories = ['vibrant', 'light', 'dark', 'minimal'] as const;
 
-  function handleSave() {
+  const buttonStyles = [
+    { id: 'gradient', labelKey: 'style.btn.gradient' },
+    { id: 'solid', labelKey: 'style.btn.solid' },
+    { id: 'outline', labelKey: 'style.btn.outline' },
+    { id: 'glass', labelKey: 'style.btn.glass' },
+  ];
+
+  const cardStyles = [
+    { id: 'glass', labelKey: 'style.card.glass' },
+    { id: 'solid', labelKey: 'style.card.solid' },
+    { id: 'border-only', labelKey: 'style.card.borderOnly' },
+    { id: 'shadow', labelKey: 'style.card.shadow' },
+  ];
+
+  function handleSaveAll() {
     startTransition(async () => {
       try {
         const res = await fetch(`/api/editor/${encodeURIComponent(handle)}/customization`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ themeId: selectedTheme }),
+          body: JSON.stringify({
+            themeId: selectedTheme,
+            fontBody: selectedFontBody,
+            fontDisplay: selectedFontDisplay,
+            buttonStyle,
+            cardStyle,
+            showSparkles,
+          }),
         });
         if (res.ok) {
           setSaved(true);
@@ -304,36 +368,139 @@ function ThemeTab({
   }
 
   return (
-    <section style={{ marginTop: '1rem' }}>
-      <div className="editor-save-bar">
-        <button className="button-primary" onClick={handleSave} disabled={isPending} type="button">
-          {isPending ? t('common.saving') : saved ? t('common.saved') : t('editor.saveTheme')}
+    <div className="appearance-page">
+      {/* Sticky save bar */}
+      <div className="appearance-save-bar">
+        <button className="button-primary" onClick={handleSaveAll} disabled={isPending} type="button">
+          {isPending ? t('common.saving') : saved ? t('common.saved') : t('editor.saveAppearance')}
         </button>
       </div>
 
-      {categories.map((cat) => {
-        const themes = THEMES.filter((th) => th.category === cat);
-        return (
-          <div key={cat} style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ margin: '0 0 0.75rem', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
-              {t(`theme.category.${cat}`)} ({themes.length})
-            </h3>
-            <div className="theme-grid">
-              {themes.map((theme) => (
-                <ThemeCard
-                  key={theme.id}
-                  theme={theme}
-                  selected={selectedTheme === theme.id}
-                  onSelect={() => onSelect(theme.id)}
-                />
-              ))}
+      {/* ── Themes Section ──────────────────────────────── */}
+      <section>
+        <h2 className="appearance-section-title">🎨 {t('editor.tab.theme')}</h2>
+        {categories.map((cat) => {
+          const themes = THEMES.filter((th) => th.category === cat);
+          return (
+            <div key={cat} style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ margin: '0 0 0.75rem', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+                {t(`theme.category.${cat}`)} ({themes.length})
+              </h3>
+              <div className="theme-grid">
+                {themes.map((theme) => (
+                  <ThemeCard
+                    key={theme.id}
+                    theme={theme}
+                    selected={selectedTheme === theme.id}
+                    onSelect={() => onSelectTheme(theme.id)}
+                  />
+                ))}
+              </div>
             </div>
+          );
+        })}
+      </section>
+
+      {/* ── Fonts Section ───────────────────────────────── */}
+      <section>
+        <h2 className="appearance-section-title">✍️ {t('editor.tab.fonts')}</h2>
+
+        <div className="card dash-card" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ margin: '0 0 0.75rem' }}>{t('fonts.bodyTitle')}</h3>
+          <p className="subtitle" style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
+            {t('fonts.bodyDesc')}
+          </p>
+          <div className="font-grid">
+            {FONT_OPTIONS.map((font) => (
+              <FontCard
+                key={font.id}
+                font={font}
+                selected={selectedFontBody === font.id}
+                onSelect={() => onSelectBody(font.id)}
+              />
+            ))}
           </div>
-        );
-      })}
-    </section>
+        </div>
+
+        <div className="card dash-card" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ margin: '0 0 0.75rem' }}>{t('fonts.displayTitle')}</h3>
+          <p className="subtitle" style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
+            {t('fonts.displayDesc')}
+          </p>
+          <div className="font-grid">
+            {FONT_OPTIONS.map((font) => (
+              <FontCard
+                key={font.id}
+                font={font}
+                selected={selectedFontDisplay === font.id}
+                onSelect={() => onSelectDisplay(font.id)}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Styles Section ──────────────────────────────── */}
+      <section>
+        <h2 className="appearance-section-title">💎 {t('editor.tab.style')}</h2>
+
+        <div className="card dash-card" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ margin: '0 0 0.75rem' }}>{t('style.buttonTitle')}</h3>
+          <div className="style-options">
+            {buttonStyles.map((s) => (
+              <button
+                key={s.id}
+                className={`style-option ${buttonStyle === s.id ? 'style-option--active' : ''}`}
+                onClick={() => onButtonStyle(s.id)}
+                type="button"
+              >
+                <div className={`style-preview style-preview--btn-${s.id}`}>
+                  {t('style.preview.button')}
+                </div>
+                <span>{t(s.labelKey)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="card dash-card" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ margin: '0 0 0.75rem' }}>{t('style.cardTitle')}</h3>
+          <div className="style-options">
+            {cardStyles.map((s) => (
+              <button
+                key={s.id}
+                className={`style-option ${cardStyle === s.id ? 'style-option--active' : ''}`}
+                onClick={() => onCardStyle(s.id)}
+                type="button"
+              >
+                <div className={`style-preview style-preview--card-${s.id}`}>
+                  {t('style.preview.card')}
+                </div>
+                <span>{t(s.labelKey)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="card dash-card" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ margin: '0 0 0.75rem' }}>{t('style.extraTitle')}</h3>
+          <div className="style-toggles">
+            <label className="style-toggle">
+              <input
+                type="checkbox"
+                checked={showSparkles}
+                onChange={(e) => onShowSparkles(e.target.checked)}
+              />
+              <span>{t('style.sparkles')}</span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
+
+/* ─── Theme Card ─────────────────────────────────────────── */
 
 function ThemeCard({ theme, selected, onSelect }: { theme: ThemeConfig; selected: boolean; onSelect: () => void }) {
   return (
@@ -352,87 +519,7 @@ function ThemeCard({ theme, selected, onSelect }: { theme: ThemeConfig; selected
   );
 }
 
-/* ─── Fonts Tab ──────────────────────────────────────────────────── */
-
-function FontsTab({
-  selectedBody,
-  selectedDisplay,
-  onSelectBody,
-  onSelectDisplay,
-  handle,
-}: {
-  selectedBody: string;
-  selectedDisplay: string;
-  onSelectBody: (id: string) => void;
-  onSelectDisplay: (id: string) => void;
-  handle: string;
-}) {
-  const t = useT();
-  const [isPending, startTransition] = useTransition();
-  const [saved, setSaved] = useState(false);
-
-  function handleSave() {
-    startTransition(async () => {
-      try {
-        const res = await fetch(`/api/editor/${encodeURIComponent(handle)}/customization`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fontBody: selectedBody, fontDisplay: selectedDisplay }),
-        });
-        if (res.ok) {
-          setSaved(true);
-          setTimeout(() => setSaved(false), 2000);
-        }
-      } catch {
-        // silently ignore
-      }
-    });
-  }
-
-  return (
-    <section style={{ marginTop: '1rem' }}>
-      <div className="editor-save-bar">
-        <button className="button-primary" onClick={handleSave} disabled={isPending} type="button">
-          {isPending ? t('common.saving') : saved ? t('common.saved') : t('editor.saveFonts')}
-        </button>
-      </div>
-
-      <div className="card dash-card" style={{ marginBottom: '1rem' }}>
-        <h3 style={{ margin: '0 0 0.75rem' }}>{t('fonts.bodyTitle')}</h3>
-        <p className="subtitle" style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
-          {t('fonts.bodyDesc')}
-        </p>
-        <div className="font-grid">
-          {FONT_OPTIONS.map((font) => (
-            <FontCard
-              key={font.id}
-              font={font}
-              selected={selectedBody === font.id}
-              onSelect={() => onSelectBody(font.id)}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="card dash-card" style={{ marginBottom: '1rem' }}>
-        <h3 style={{ margin: '0 0 0.75rem' }}>{t('fonts.displayTitle')}</h3>
-        <p className="subtitle" style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
-          {t('fonts.displayDesc')}
-        </p>
-        <div className="font-grid">
-          {FONT_OPTIONS.map((font) => (
-            <FontCard
-              key={font.id}
-              font={font}
-              selected={selectedDisplay === font.id}
-              onSelect={() => onSelectDisplay(font.id)}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+/* ─── Font Card ──────────────────────────────────────────── */
 
 function FontCard({ font, selected, onSelect }: { font: FontOption; selected: boolean; onSelect: () => void }) {
   return (
@@ -446,123 +533,5 @@ function FontCard({ font, selected, onSelect }: { font: FontOption; selected: bo
       <span className="font-card-category">{font.category}</span>
       {selected && <span className="font-card-check">✓</span>}
     </button>
-  );
-}
-
-/* ─── Style Tab ──────────────────────────────────────────────────── */
-
-function StyleTab({
-  buttonStyle,
-  cardStyle,
-  showSparkles,
-  onButtonStyle,
-  onCardStyle,
-  onShowSparkles,
-  handle,
-}: {
-  buttonStyle: string;
-  cardStyle: string;
-  showSparkles: boolean;
-  onButtonStyle: (s: string) => void;
-  onCardStyle: (s: string) => void;
-  onShowSparkles: (b: boolean) => void;
-  handle: string;
-}) {
-  const t = useT();
-  const [isPending, startTransition] = useTransition();
-  const [saved, setSaved] = useState(false);
-
-  function handleSave() {
-    startTransition(async () => {
-      try {
-        const res = await fetch(`/api/editor/${encodeURIComponent(handle)}/customization`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ buttonStyle, cardStyle, showSparkles }),
-        });
-        if (res.ok) {
-          setSaved(true);
-          setTimeout(() => setSaved(false), 2000);
-        }
-      } catch {
-        // silently ignore
-      }
-    });
-  }
-
-  const buttonStyles = [
-    { id: 'gradient', labelKey: 'style.btn.gradient' },
-    { id: 'solid', labelKey: 'style.btn.solid' },
-    { id: 'outline', labelKey: 'style.btn.outline' },
-    { id: 'glass', labelKey: 'style.btn.glass' },
-  ];
-
-  const cardStyles = [
-    { id: 'glass', labelKey: 'style.card.glass' },
-    { id: 'solid', labelKey: 'style.card.solid' },
-    { id: 'border-only', labelKey: 'style.card.borderOnly' },
-    { id: 'shadow', labelKey: 'style.card.shadow' },
-  ];
-
-  return (
-    <section style={{ marginTop: '1rem' }}>
-      <div className="editor-save-bar">
-        <button className="button-primary" onClick={handleSave} disabled={isPending} type="button">
-          {isPending ? t('common.saving') : saved ? t('common.saved') : t('editor.saveStyle')}
-        </button>
-      </div>
-
-      <div className="card dash-card" style={{ marginBottom: '1rem' }}>
-        <h3 style={{ margin: '0 0 0.75rem' }}>{t('style.buttonTitle')}</h3>
-        <div className="style-options">
-          {buttonStyles.map((s) => (
-            <button
-              key={s.id}
-              className={`style-option ${buttonStyle === s.id ? 'style-option--active' : ''}`}
-              onClick={() => onButtonStyle(s.id)}
-              type="button"
-            >
-              <div className={`style-preview style-preview--btn-${s.id}`}>
-                {t('style.preview.button')}
-              </div>
-              <span>{t(s.labelKey)}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="card dash-card" style={{ marginBottom: '1rem' }}>
-        <h3 style={{ margin: '0 0 0.75rem' }}>{t('style.cardTitle')}</h3>
-        <div className="style-options">
-          {cardStyles.map((s) => (
-            <button
-              key={s.id}
-              className={`style-option ${cardStyle === s.id ? 'style-option--active' : ''}`}
-              onClick={() => onCardStyle(s.id)}
-              type="button"
-            >
-              <div className={`style-preview style-preview--card-${s.id}`}>
-                {t('style.preview.card')}
-              </div>
-              <span>{t(s.labelKey)}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="card dash-card" style={{ marginBottom: '1rem' }}>
-        <h3 style={{ margin: '0 0 0.75rem' }}>{t('style.extraTitle')}</h3>
-        <div className="style-toggles">
-          <label className="style-toggle">
-            <input
-              type="checkbox"
-              checked={showSparkles}
-              onChange={(e) => onShowSparkles(e.target.checked)}
-            />
-            <span>{t('style.sparkles')}</span>
-          </label>
-        </div>
-      </div>
-    </section>
   );
 }

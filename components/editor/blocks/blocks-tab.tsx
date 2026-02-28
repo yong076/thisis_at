@@ -105,7 +105,7 @@ export function BlocksTab({ blocks, handle, profileType, onBlocksChange }: Props
   );
 
   return (
-    <section style={{ marginTop: '1rem' }}>
+    <section>
       {/* Add Block Button */}
       <button
         className="block-add-button"

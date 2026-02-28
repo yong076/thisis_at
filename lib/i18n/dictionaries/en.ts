@@ -114,6 +114,12 @@ export const en: Dictionary = {
   'editor.saveTheme': 'Save theme',
   'editor.saveFonts': 'Save fonts',
   'editor.saveStyle': 'Save style',
+  'editor.nav.links': 'Links',
+  'editor.nav.appearance': 'Appearance',
+  'editor.saveAppearance': 'Save appearance',
+  'editor.tab.edit': 'Edit',
+  'editor.preview': 'Preview',
+  'editor.changeAvatar': 'Change avatar',
 
   // ─── Editor: Theme Categories ──────────────────────────────────
   'theme.category.vibrant': 'Vibrant',

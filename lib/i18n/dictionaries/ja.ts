@@ -114,6 +114,12 @@ export const ja: Dictionary = {
   'editor.saveTheme': 'テーマを保存',
   'editor.saveFonts': 'フォントを保存',
   'editor.saveStyle': 'スタイルを保存',
+  'editor.nav.links': 'リンク',
+  'editor.nav.appearance': '外観',
+  'editor.saveAppearance': '外観を保存',
+  'editor.tab.edit': '編集',
+  'editor.preview': 'プレビュー',
+  'editor.changeAvatar': 'アバターを変更',
 
   // ─── Editor: Theme Categories ──────────────────────────────────
   'theme.category.vibrant': 'ビビッド',
