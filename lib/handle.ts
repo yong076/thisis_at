@@ -1,15 +1,4 @@
-const RESERVED = new Set([
-  'admin',
-  'analytics',
-  'api',
-  'support',
-  'terms',
-  'privacy',
-  'login',
-  'dashboard',
-  'editor',
-  'settings'
-]);
+import { checkBannedHandle } from './banned-handles';
 
 const HANDLE_REGEX = /^[a-z0-9._]{3,30}$/;
 
@@ -23,15 +12,13 @@ export function validateHandle(raw: string): { valid: boolean; reason?: string }
   if (!HANDLE_REGEX.test(handle)) {
     return {
       valid: false,
-      reason: 'Handle must be 3-30 chars, lowercase letters, numbers, dot, underscore only.'
+      reason: '핸들은 3~30자의 영문 소문자, 숫자, 점, 밑줄만 사용할 수 있습니다.'
     };
   }
 
-  if (RESERVED.has(handle)) {
-    return {
-      valid: false,
-      reason: 'Reserved handle.'
-    };
+  const banned = checkBannedHandle(handle);
+  if (banned) {
+    return { valid: false, reason: banned };
   }
 
   return { valid: true };

@@ -15,8 +15,8 @@ export async function POST(req: Request) {
     const count = await prisma.profile.count({
       where: { userId: session.user.id },
     });
-    if (count >= 1) {
-      return NextResponse.json({ error: '프로필은 최대 1개까지 생성할 수 있습니다.' }, { status: 403 });
+    if (count >= 5) {
+      return NextResponse.json({ error: '프로필은 최대 5개까지 생성할 수 있습니다.' }, { status: 403 });
     }
   }
 
