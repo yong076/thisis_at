@@ -34,6 +34,11 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
 
   // Profile editing state
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatarUrl ?? null);
+  const [displayName, setDisplayName] = useState(profile.displayName);
+  const [bio, setBio] = useState(profile.bio ?? '');
+  const [location, setLocation] = useState(profile.location ?? '');
+  const [profileSaving, startProfileSave] = useTransition();
+  const [profileSaved, setProfileSaved] = useState(false);
 
   // Code editor toggle
   const [showCodeEditor, setShowCodeEditor] = useState(false);
@@ -44,11 +49,29 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
   const [newBlockType, setNewBlockType] = useState<BlockType | null>(null);
   const [mobileView, setMobileView] = useState<MobileView>('edit');
 
-  // Derived profile with live avatar edit
+  // Derived profile with live edits
   const liveProfile = useMemo(
-    () => ({ ...profile, avatarUrl: avatarUrl ?? undefined }),
-    [profile, avatarUrl],
+    () => ({ ...profile, avatarUrl: avatarUrl ?? undefined, displayName, bio, location }),
+    [profile, avatarUrl, displayName, bio, location],
   );
+
+  const handleProfileSave = useCallback(() => {
+    startProfileSave(async () => {
+      try {
+        const res = await fetch(`/api/editor/${encodeURIComponent(profile.handle)}/profile`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ displayName, bio, location }),
+        });
+        if (res.ok) {
+          setProfileSaved(true);
+          setTimeout(() => setProfileSaved(false), 2000);
+        }
+      } catch {
+        // silently ignore
+      }
+    });
+  }, [profile.handle, displayName, bio, location]);
 
   const handleBlocksChange = useCallback((newBlocks: ProfileBlock[]) => {
     setBlocks(newBlocks);
@@ -150,12 +173,12 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
           {/* ── Links Page ──────────────────────────────────── */}
           {activePage === 'links' && (
             <>
-              {/* Profile Card with Avatar Upload */}
+              {/* Profile Card with Avatar Upload & Info Editing */}
               <section className="card dash-card editor-profile-card">
                 <div className="editor-profile-row">
                   <AvatarUpload
                     handle={profile.handle}
-                    displayName={profile.displayName}
+                    displayName={displayName}
                     avatarUrl={avatarUrl}
                     onAvatarChange={setAvatarUrl}
                   />
@@ -167,6 +190,46 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
                       {t('editor.subtitle')}
                     </p>
                   </div>
+                </div>
+                <div className="editor-profile-fields">
+                  <label className="editor-field">
+                    <span className="editor-field-label">{t('editor.profile.displayName')}</span>
+                    <input
+                      type="text"
+                      className="editor-field-input"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      placeholder={t('editor.profile.displayNamePlaceholder')}
+                    />
+                  </label>
+                  <label className="editor-field">
+                    <span className="editor-field-label">{t('editor.profile.bio')}</span>
+                    <textarea
+                      className="editor-field-input editor-field-textarea"
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder={t('editor.profile.bioPlaceholder')}
+                      rows={3}
+                    />
+                  </label>
+                  <label className="editor-field">
+                    <span className="editor-field-label">{t('editor.profile.location')}</span>
+                    <input
+                      type="text"
+                      className="editor-field-input"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder={t('editor.profile.locationPlaceholder')}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="button-primary editor-profile-save"
+                    onClick={handleProfileSave}
+                    disabled={profileSaving}
+                  >
+                    {profileSaving ? t('common.saving') : profileSaved ? t('common.saved') : t('editor.profile.save')}
+                  </button>
                 </div>
               </section>
 

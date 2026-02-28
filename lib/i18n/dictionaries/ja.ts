@@ -120,6 +120,13 @@ export const ja: Dictionary = {
   'editor.tab.edit': '編集',
   'editor.preview': 'プレビュー',
   'editor.changeAvatar': 'アバターを変更',
+  'editor.profile.displayName': '表示名',
+  'editor.profile.displayNamePlaceholder': 'プロフィールに表示される名前',
+  'editor.profile.bio': '自己紹介',
+  'editor.profile.bioPlaceholder': '簡単な自己紹介を書いてください',
+  'editor.profile.location': '場所',
+  'editor.profile.locationPlaceholder': '例: Tokyo, JP',
+  'editor.profile.save': 'プロフィールを保存',
 
   // ─── Editor: Theme Categories ──────────────────────────────────
   'theme.category.vibrant': 'ビビッド',

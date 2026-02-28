@@ -120,6 +120,13 @@ export const en: Dictionary = {
   'editor.tab.edit': 'Edit',
   'editor.preview': 'Preview',
   'editor.changeAvatar': 'Change avatar',
+  'editor.profile.displayName': 'Display name',
+  'editor.profile.displayNamePlaceholder': 'Name shown on your profile',
+  'editor.profile.bio': 'Bio',
+  'editor.profile.bioPlaceholder': 'Write a short bio about yourself',
+  'editor.profile.location': 'Location',
+  'editor.profile.locationPlaceholder': 'e.g. Seoul, KR',
+  'editor.profile.save': 'Save profile',
 
   // ─── Editor: Theme Categories ──────────────────────────────────
   'theme.category.vibrant': 'Vibrant',

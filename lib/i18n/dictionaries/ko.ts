@@ -120,6 +120,13 @@ export const ko: Dictionary = {
   'editor.tab.edit': '편집',
   'editor.preview': '미리보기',
   'editor.changeAvatar': '프로필 사진 변경',
+  'editor.profile.displayName': '표시 이름',
+  'editor.profile.displayNamePlaceholder': '프로필에 표시될 이름',
+  'editor.profile.bio': '자기소개',
+  'editor.profile.bioPlaceholder': '간단한 자기소개를 작성하세요',
+  'editor.profile.location': '위치',
+  'editor.profile.locationPlaceholder': '예: Seoul, KR',
+  'editor.profile.save': '프로필 저장',
 
   // ─── Editor: Theme Categories ──────────────────────────────────
   'theme.category.vibrant': '비비드',
