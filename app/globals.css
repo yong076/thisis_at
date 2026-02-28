@@ -483,44 +483,147 @@ h1, h2, h3, h4 {
 }
 
 /* ============================================================
-   Feature Cards (Landing Page)
+   Bento Grid & Animations (Landing Page)
    ============================================================ */
 
-.feature-grid {
+.bento-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+  width: 100%;
 }
 
-.feature-card {
-  padding: 1.5rem;
-  text-align: left;
+@media (max-width: 768px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.feature-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+.bento-item {
+  position: relative;
+  background: var(--surface-strong);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.bento-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+/* Add a subtle glow inside on hover */
+.bento-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+}
+.bento-item:hover::before {
+  opacity: 1;
+}
+
+/* Specific Bento span utilities */
+.bento-item.col-span-2 {
+  grid-column: span 2;
+}
+.bento-item.row-span-2 {
+  grid-row: span 2;
+}
+
+@media (max-width: 768px) {
+  .bento-item.col-span-2 {
+    grid-column: span 1; /* Reset on mobile */
+  }
+  .bento-item.row-span-2 {
+    grid-row: span 1;
+  }
+}
+
+.bento-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
   background: var(--gradient-soft);
   border: 1px solid var(--line-accent);
+  box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.8), var(--shadow-sm);
+  transition: transform 300ms ease;
 }
 
-.feature-card h3 {
+.bento-item:hover .bento-icon {
+  transform: scale(1.05) rotate(-3deg);
+}
+
+.bento-item h3 {
   margin: 0 0 0.5rem;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-.feature-card p {
+.bento-item p {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.92rem;
+  font-size: 1rem;
   line-height: 1.6;
+}
+
+/* ============================================================
+   Scroll Reveal Animations
+   ============================================================ */
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 800ms cubic-bezier(0.16, 1, 0.3, 1), transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.delay-100 { transition-delay: 100ms; }
+.delay-200 { transition-delay: 200ms; }
+.delay-300 { transition-delay: 300ms; }
+.delay-400 { transition-delay: 400ms; }
+
+/* Large Luma-style Mockup Container */
+.showcase-mockup {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 3rem auto;
+  aspect-ratio: 9/16;
+  background: var(--surface-strong);
+  border: 8px solid white;
+  border-radius: 36px;
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--line), var(--shadow-glow);
+  overflow: hidden;
+  transform: rotate(2deg) translateY(10px);
+  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.showcase-mockup:hover {
+  transform: rotate(0deg) translateY(-5px);
 }
 
 /* ============================================================
