@@ -3863,17 +3863,11 @@ details[open] .faq-content-inner {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 24px;
+  height: 28px;
   cursor: pointer;
   position: relative;
-  opacity: 0;
-  pointer-events: none;
+  opacity: 0.45;
   transition: opacity 200ms ease;
-}
-
-.block-list:hover .insert-block-btn {
-  opacity: 0.4;
-  pointer-events: auto;
 }
 
 .insert-block-btn:hover {
@@ -3887,7 +3881,7 @@ details[open] .faq-content-inner {
   right: 10%;
   top: 50%;
   height: 1px;
-  background: rgba(139, 92, 246, 0.4);
+  background: rgba(139, 92, 246, 0.5);
   border-style: dashed;
 }
 
@@ -3895,12 +3889,12 @@ details[open] .faq-content-inner {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: rgba(139, 92, 246, 0.2);
-  color: rgba(139, 92, 246, 0.9);
-  font-size: 0.8rem;
+  background: rgba(139, 92, 246, 0.35);
+  color: rgba(139, 92, 246, 1);
+  font-size: 0.85rem;
   font-weight: 700;
   position: relative;
   z-index: 1;
@@ -3908,17 +3902,114 @@ details[open] .faq-content-inner {
 }
 
 .insert-block-btn:hover .insert-block-icon {
-  background: rgba(139, 92, 246, 0.4);
-  transform: scale(1.2);
+  background: rgba(139, 92, 246, 0.55);
+  transform: scale(1.15);
 }
 
-/* ─── Mobile Preview Toggle ──────────────────────────── */
+/* ─── Editor Profile Card ───────────────────────────── */
 
-.mobile-preview-toggle {
-  display: none;
+.editor-profile-card {
+  margin-bottom: 1rem;
 }
 
-.mobile-preview-overlay {
+.editor-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.editor-profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ─── Avatar Upload ─────────────────────────────────── */
+
+.avatar-upload {
+  flex-shrink: 0;
+}
+
+.avatar-upload-btn {
+  all: unset;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(139, 92, 246, 0.15);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  transition: border-color 200ms ease;
+}
+
+.avatar-upload-btn:hover {
+  border-color: rgba(139, 92, 246, 0.7);
+}
+
+.avatar-upload-btn:disabled {
+  cursor: wait;
+}
+
+.avatar-upload-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatar-upload-initials {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: rgba(139, 92, 246, 0.8);
+}
+
+.avatar-upload-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.avatar-upload-btn:hover .avatar-upload-overlay {
+  opacity: 1;
+}
+
+.avatar-upload-icon {
+  font-size: 1.1rem;
+  filter: brightness(2);
+}
+
+.avatar-upload-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.avatar-upload-error {
+  margin: 0.25rem 0 0;
+  font-size: 0.7rem;
+  color: #ef4444;
+  text-align: center;
+}
+
+/* ─── Mobile Bottom Tab Bar ──────────────────────────── */
+
+.mobile-bottom-bar {
   display: none;
 }
 
@@ -3931,75 +4022,68 @@ details[open] .faq-content-inner {
     position: static;
     height: auto;
     border-right: none;
-    border-bottom: 1px solid var(--line);
+    padding-bottom: 60px;
+  }
+
+  .editor-controls--hidden-mobile {
+    display: none;
   }
 
   .editor-preview-pane {
     display: none;
   }
 
-  .mobile-preview-toggle {
+  .editor-preview-pane--show-mobile {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 999px;
-    border: none;
-    background: var(--gradient-button);
-    color: #fff;
-    font-family: var(--font-body), system-ui, sans-serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
-    z-index: 100;
-    transition: transform 150ms ease;
-  }
-
-  .mobile-preview-toggle:active {
-    transform: scale(0.95);
-  }
-
-  .mobile-preview-overlay {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    inset: 0;
-    z-index: 200;
-    background: var(--bg);
-  }
-
-  .mobile-preview-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--line);
-    font-weight: 600;
-  }
-
-  .mobile-preview-header button {
-    all: unset;
-    cursor: pointer;
-    font-size: 1.2rem;
-    padding: 0.25rem;
-  }
-
-  .mobile-preview-body {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    justify-content: center;
+    position: static;
+    height: auto;
+    min-height: calc(100dvh - 52px);
     padding: 1rem;
+    padding-bottom: 60px;
   }
 
-  .mobile-preview-body .phone-frame {
+  .editor-preview-pane--show-mobile .phone-frame {
     width: 100%;
     max-width: 375px;
     height: auto;
     min-height: 600px;
+  }
+
+  .mobile-bottom-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    background: var(--bg, #0a0a0f);
+    border-top: 1px solid var(--line);
+    z-index: 100;
+  }
+
+  .mobile-bottom-tab {
+    all: unset;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-family: var(--font-body), system-ui, sans-serif;
+    color: var(--text-secondary, #888);
+    transition: color 200ms ease;
+    border-top: 2px solid transparent;
+  }
+
+  .mobile-bottom-tab--active {
+    color: var(--text-primary, #fff);
+    border-top-color: rgba(139, 92, 246, 0.8);
+  }
+
+  .mobile-bottom-tab span {
+    font-size: 1.1rem;
+    line-height: 1;
   }
 }

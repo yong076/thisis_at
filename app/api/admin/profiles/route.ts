@@ -54,7 +54,7 @@ export async function POST(req: Request) {
   // Create profile
   const profile = await prisma.profile.create({
     data: {
-      userId: session.user.id,
+      owner: { connect: { id: session.user.id } },
       handle,
       displayName: displayName.trim(),
       type,

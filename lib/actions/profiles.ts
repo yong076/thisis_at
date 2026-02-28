@@ -62,7 +62,7 @@ export async function createProfile(
   // Create profile
   await prisma.profile.create({
     data: {
-      userId: session.user.id,
+      owner: { connect: { id: session.user.id } },
       handle,
       displayName: displayName.trim(),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

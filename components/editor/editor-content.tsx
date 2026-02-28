@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useCallback } from 'react';
+import { useState, useTransition, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { THEMES } from '@/lib/themes';
 import { FONT_OPTIONS } from '@/lib/fonts';
@@ -11,11 +11,13 @@ import { CodeEditorTab } from './code/code-editor-tab';
 import { BlockEditDialog } from './blocks/block-edit-dialog';
 import { BlockAddDialog } from './blocks/block-add-dialog';
 import { LivePreview } from './preview/live-preview';
+import { AvatarUpload } from './profile/avatar-upload';
 import type { PublicProfile, ProfileBlock, BlockType } from '@/lib/types';
 import type { ThemeConfig } from '@/lib/themes';
 import type { FontOption } from '@/lib/fonts';
 
 type Tab = 'blocks' | 'theme' | 'fonts' | 'style' | 'code';
+type MobileView = 'edit' | 'preview';
 
 export function EditorContent({ profile }: { profile: PublicProfile }) {
   const t = useT();
@@ -30,11 +32,20 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
   const [cardStyle, setCardStyle] = useState<string>(profile.customization?.cardStyle ?? 'glass');
   const [showSparkles, setShowSparkles] = useState(profile.customization?.showSparkles ?? true);
 
+  // Profile editing state
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatarUrl ?? null);
+
   // Preview-triggered dialogs
   const [editingBlock, setEditingBlock] = useState<ProfileBlock | null>(null);
   const [insertIndex, setInsertIndex] = useState<number | null>(null);
   const [newBlockType, setNewBlockType] = useState<BlockType | null>(null);
-  const [showMobilePreview, setShowMobilePreview] = useState(false);
+  const [mobileView, setMobileView] = useState<MobileView>('edit');
+
+  // Derived profile with live avatar edit
+  const liveProfile = useMemo(
+    () => ({ ...profile, avatarUrl: avatarUrl ?? undefined }),
+    [profile, avatarUrl],
+  );
 
   const tabs: { id: Tab; labelKey: string; icon: string }[] = [
     { id: 'blocks', labelKey: 'editor.tab.blocks', icon: '📦' },
@@ -96,7 +107,7 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
   return (
     <main className="editor-layout">
       {/* Left Panel: Controls */}
-      <div className="editor-controls">
+      <div className={`editor-controls ${mobileView === 'preview' ? 'editor-controls--hidden-mobile' : ''}`}>
         <header className="admin-header">
           <Link href="/admin" className="brand">
             thisis.at
@@ -112,11 +123,24 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
           </div>
         </header>
 
-        <section className="card dash-card" style={{ marginBottom: '1rem' }}>
-          <h1>
-            {t('nav.editor')}: <span className="gradient-text">@{profile.handle}</span>
-          </h1>
-          <p className="subtitle">{t('editor.subtitle')}</p>
+        {/* Profile Card with Avatar Upload */}
+        <section className="card dash-card editor-profile-card">
+          <div className="editor-profile-row">
+            <AvatarUpload
+              handle={profile.handle}
+              displayName={profile.displayName}
+              avatarUrl={avatarUrl}
+              onAvatarChange={setAvatarUrl}
+            />
+            <div className="editor-profile-info">
+              <h1 style={{ margin: 0, fontSize: '1.1rem' }}>
+                <span className="gradient-text">@{profile.handle}</span>
+              </h1>
+              <p className="subtitle" style={{ margin: '0.25rem 0 0', fontSize: '0.85rem' }}>
+                {t('editor.subtitle')}
+              </p>
+            </div>
+          </div>
         </section>
 
         <div className="editor-tabs">
@@ -177,9 +201,9 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
       </div>
 
       {/* Right Panel: Live Preview */}
-      <div className="editor-preview-pane">
+      <div className={`editor-preview-pane ${mobileView === 'edit' ? 'editor-preview-pane--hidden-mobile' : 'editor-preview-pane--show-mobile'}`}>
         <LivePreview
-          profile={profile}
+          profile={liveProfile}
           blocks={blocks}
           themeId={selectedTheme}
           fontBodyId={selectedFontBody}
@@ -194,40 +218,25 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
         />
       </div>
 
-      {/* Mobile Preview Toggle */}
-      <button
-        type="button"
-        className="mobile-preview-toggle"
-        onClick={() => setShowMobilePreview(true)}
-      >
-        {t('editor.preview') || 'Preview'}
-      </button>
-
-      {/* Mobile Preview Overlay */}
-      {showMobilePreview && (
-        <div className="mobile-preview-overlay">
-          <div className="mobile-preview-header">
-            <span>{t('editor.preview') || 'Preview'}</span>
-            <button type="button" onClick={() => setShowMobilePreview(false)}>✕</button>
-          </div>
-          <div className="mobile-preview-body">
-            <LivePreview
-              profile={profile}
-              blocks={blocks}
-              themeId={selectedTheme}
-              fontBodyId={selectedFontBody}
-              fontDisplayId={selectedFontDisplay}
-              buttonStyle={buttonStyle}
-              cardStyle={cardStyle}
-              showSparkles={showSparkles}
-              onEditBlock={handlePreviewEdit}
-              onToggleBlock={handlePreviewToggle}
-              onDeleteBlock={handlePreviewDelete}
-              onInsertBlock={handlePreviewInsert}
-            />
-          </div>
-        </div>
-      )}
+      {/* Mobile Bottom Tab Bar */}
+      <div className="mobile-bottom-bar">
+        <button
+          type="button"
+          className={`mobile-bottom-tab ${mobileView === 'edit' ? 'mobile-bottom-tab--active' : ''}`}
+          onClick={() => setMobileView('edit')}
+        >
+          <span>✏️</span>
+          {t('editor.tab.edit') || '편집'}
+        </button>
+        <button
+          type="button"
+          className={`mobile-bottom-tab ${mobileView === 'preview' ? 'mobile-bottom-tab--active' : ''}`}
+          onClick={() => setMobileView('preview')}
+        >
+          <span>👁️</span>
+          {t('editor.preview') || '미리보기'}
+        </button>
+      </div>
 
       {/* Edit Block Dialog (from preview click) */}
       <BlockEditDialog
