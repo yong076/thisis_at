@@ -97,14 +97,31 @@ export async function POST(
   }
 
   // Upload to R2
-  const url = await uploadToR2(file, key);
+  let url: string;
+  try {
+    url = await uploadToR2(file, key);
+  } catch (err) {
+    console.error('[upload] R2 upload failed:', err);
+    return NextResponse.json(
+      { error: '이미지 업로드에 실패했습니다. 잠시 후 다시 시도해주세요.' },
+      { status: 500 },
+    );
+  }
 
   // Update DB for avatar/cover (block images are stored in configJson by the client)
   if (field !== 'blockImage') {
-    await prisma.profile.update({
-      where: { id: ownership.profile.id },
-      data: { [field]: url },
-    });
+    try {
+      await prisma.profile.update({
+        where: { id: ownership.profile.id },
+        data: { [field]: url },
+      });
+    } catch (err) {
+      console.error('[upload] DB update failed:', err);
+      return NextResponse.json(
+        { error: '프로필 업데이트에 실패했습니다.' },
+        { status: 500 },
+      );
+    }
   }
 
   return NextResponse.json({ ok: true, url });

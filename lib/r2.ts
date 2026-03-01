@@ -4,30 +4,43 @@ import {
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 
-// ─── Configuration ──────────────────────────────────────────────
+// ─── Lazy-init client (avoid crash when env vars are missing at import time) ──
 
-const R2_ENDPOINT = `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+let _client: S3Client | null = null;
 
-export const r2Client = new S3Client({
-  region: 'auto',
-  endpoint: R2_ENDPOINT,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
+function getClient(): S3Client {
+  if (!_client) {
+    if (!process.env.R2_ACCOUNT_ID) {
+      throw new Error('R2_ACCOUNT_ID is not configured');
+    }
+    _client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+      },
+    });
+  }
+  return _client;
+}
 
-const BUCKET = process.env.R2_BUCKET_NAME!;
-const PUBLIC_URL = process.env.R2_PUBLIC_URL!; // e.g. https://pub-xxx.r2.dev
+function getBucket(): string {
+  return process.env.R2_BUCKET_NAME || 'thisis-at';
+}
+
+function getPublicUrl(): string {
+  return process.env.R2_PUBLIC_URL || '';
+}
 
 // ─── Upload ─────────────────────────────────────────────────────
 
 export async function uploadToR2(file: File, key: string): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  await r2Client.send(
+  await getClient().send(
     new PutObjectCommand({
-      Bucket: BUCKET,
+      Bucket: getBucket(),
       Key: key,
       Body: buffer,
       ContentType: file.type,
@@ -35,20 +48,21 @@ export async function uploadToR2(file: File, key: string): Promise<string> {
     }),
   );
 
-  return `${PUBLIC_URL}/${key}`;
+  return `${getPublicUrl()}/${key}`;
 }
 
 // ─── Delete ─────────────────────────────────────────────────────
 
 export async function deleteFromR2(url: string): Promise<void> {
-  if (!url.startsWith(PUBLIC_URL)) return;
+  const publicUrl = getPublicUrl();
+  if (!publicUrl || !url.startsWith(publicUrl)) return;
 
-  const key = url.slice(PUBLIC_URL.length + 1);
+  const key = url.slice(publicUrl.length + 1);
 
   try {
-    await r2Client.send(
+    await getClient().send(
       new DeleteObjectCommand({
-        Bucket: BUCKET,
+        Bucket: getBucket(),
         Key: key,
       }),
     );
