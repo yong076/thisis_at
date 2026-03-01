@@ -8,5 +8,7 @@ export async function GET(_req: Request, { params }: { params: { profileId: stri
     where: { profileId },
   });
 
-  return NextResponse.json({ count });
+  return NextResponse.json({ count }, {
+    headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' },
+  });
 }

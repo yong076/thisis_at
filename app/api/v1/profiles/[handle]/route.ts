@@ -31,5 +31,7 @@ export async function GET(_request: Request, { params }: { params: { handle: str
   return NextResponse.json({
     ok: true,
     data: profile
+  }, {
+    headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
   });
 }
