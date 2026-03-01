@@ -24,23 +24,35 @@ export default async function AdminPage() {
   }
 
   // Admin users: show the overview dashboard
-  const [stats, recentSignups] = await Promise.all([
-    getGlobalStats(),
-    getRecentSignups(10),
-  ]);
+  try {
+    const [stats, recentSignups] = await Promise.all([
+      getGlobalStats(),
+      getRecentSignups(10),
+    ]);
 
-  const initialStats = {
-    ...stats,
-    recentSignups: recentSignups.map((u) => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      image: u.image,
-      role: u.role,
-      createdAt: u.createdAt.toISOString(),
-      profileCount: u._count.profiles,
-    })),
-  };
+    const initialStats = {
+      ...stats,
+      recentSignups: recentSignups.map((u) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        image: u.image,
+        role: u.role,
+        createdAt: u.createdAt.toISOString(),
+        profileCount: u._count.profiles,
+      })),
+    };
 
-  return <OverviewDashboard initialStats={initialStats} />;
+    return <OverviewDashboard initialStats={initialStats} />;
+  } catch (err) {
+    console.error('[admin] Failed to load overview stats:', err);
+    const fallback = {
+      totalUsers: 0,
+      totalProfiles: 0,
+      totalPageViews: 0,
+      totalLinkClicks: 0,
+      recentSignups: [],
+    };
+    return <OverviewDashboard initialStats={fallback} />;
+  }
 }

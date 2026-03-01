@@ -14,16 +14,25 @@ export default async function AdminAnalyticsPage() {
     redirect('/admin');
   }
 
-  const [topProfiles, viewsOverTime, countryBreakdown, deviceBreakdown] = await Promise.all([
-    getTopProfilesByViews('30d', 15),
-    getGlobalViewsOverTime('30d'),
-    getGlobalCountryBreakdown('30d'),
-    getGlobalDeviceBreakdown('30d'),
-  ]);
+  try {
+    const [topProfiles, viewsOverTime, countryBreakdown, deviceBreakdown] = await Promise.all([
+      getTopProfilesByViews('30d', 15),
+      getGlobalViewsOverTime('30d'),
+      getGlobalCountryBreakdown('30d'),
+      getGlobalDeviceBreakdown('30d'),
+    ]);
 
-  return (
-    <GlobalAnalytics
-      initialData={{ topProfiles, viewsOverTime, countryBreakdown, deviceBreakdown }}
-    />
-  );
+    return (
+      <GlobalAnalytics
+        initialData={{ topProfiles, viewsOverTime, countryBreakdown, deviceBreakdown }}
+      />
+    );
+  } catch (err) {
+    console.error('[admin] Failed to load analytics:', err);
+    return (
+      <GlobalAnalytics
+        initialData={{ topProfiles: [], viewsOverTime: [], countryBreakdown: [], deviceBreakdown: [] }}
+      />
+    );
+  }
 }

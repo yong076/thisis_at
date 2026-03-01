@@ -9,19 +9,24 @@ export default async function AdminCategoriesPage() {
     redirect('/admin');
   }
 
-  const categories = await prisma.category.findMany({
-    orderBy: { order: 'asc' },
-    include: { _count: { select: { profiles: true } } },
-  });
+  try {
+    const categories = await prisma.category.findMany({
+      orderBy: { order: 'asc' },
+      include: { _count: { select: { profiles: true } } },
+    });
 
-  const serialized = categories.map((c) => ({
-    id: c.id,
-    slug: c.slug,
-    nameKo: c.nameKo,
-    icon: c.icon,
-    order: c.order,
-    profileCount: c._count.profiles,
-  }));
+    const serialized = categories.map((c) => ({
+      id: c.id,
+      slug: c.slug,
+      nameKo: c.nameKo,
+      icon: c.icon,
+      order: c.order,
+      profileCount: c._count.profiles,
+    }));
 
-  return <CategoriesManager initialCategories={serialized} />;
+    return <CategoriesManager initialCategories={serialized} />;
+  } catch (err) {
+    console.error('[admin] Failed to load categories:', err);
+    return <CategoriesManager initialCategories={[]} />;
+  }
 }

@@ -9,20 +9,25 @@ export default async function AdminBlocksPage() {
     redirect('/admin');
   }
 
-  const { blocks, total } = await listAllBlocks({ page: 1, limit: 50 });
+  try {
+    const { blocks, total } = await listAllBlocks({ page: 1, limit: 50 });
 
-  const serialized = blocks.map((b) => ({
-    id: b.id,
-    type: b.type,
-    title: b.title,
-    configJson: b.configJson,
-    sortOrder: b.sortOrder,
-    isEnabled: b.isEnabled,
-    createdAt: b.createdAt.toISOString(),
-    profileId: b.profileId,
-    profileHandle: b.profile.handle,
-    profileName: b.profile.displayName,
-  }));
+    const serialized = blocks.map((b) => ({
+      id: b.id,
+      type: b.type,
+      title: b.title,
+      configJson: b.configJson,
+      sortOrder: b.sortOrder,
+      isEnabled: b.isEnabled,
+      createdAt: b.createdAt.toISOString(),
+      profileId: b.profileId,
+      profileHandle: b.profile.handle,
+      profileName: b.profile.displayName,
+    }));
 
-  return <BlocksTable initialBlocks={serialized} initialTotal={total} />;
+    return <BlocksTable initialBlocks={serialized} initialTotal={total} />;
+  } catch (err) {
+    console.error('[admin] Failed to load blocks:', err);
+    return <BlocksTable initialBlocks={[]} initialTotal={0} />;
+  }
 }
