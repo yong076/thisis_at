@@ -14,7 +14,7 @@ export default function HomePage() {
 
         {/* Hero */}
         <section className="hero">
-          <ScrollReveal>
+          <ScrollReveal instant>
             <h1>
               <span className="gradient-text">{t('home.hero.line1')}</span>
               <br />
@@ -33,7 +33,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay="200">
+          <ScrollReveal instant delay="200">
             <div className="showcase-mockup">
               <iframe
                 src="/lucid.band"

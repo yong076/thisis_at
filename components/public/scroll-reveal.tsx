@@ -6,18 +6,33 @@ interface ScrollRevealProps {
   children: ReactNode;
   className?: string;
   delay?: '100' | '200' | '300' | '400';
+  /** If true, starts visible (no initial flash). Use for above-the-fold content. */
+  instant?: boolean;
 }
 
-export function ScrollReveal({ children, className = '', delay }: ScrollRevealProps) {
-  const [isVisible, setIsVisible] = useState(false);
+export function ScrollReveal({ children, className = '', delay, instant }: ScrollRevealProps) {
+  // Start visible on server to prevent flash, observer will handle below-fold items
+  const [isVisible, setIsVisible] = useState(!!instant);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // If already visible (instant), skip observer
+    if (instant) return;
+
+    const el = ref.current;
+    if (!el) return;
+
+    // If element is already in viewport on mount, show immediately (no flash)
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight + 50) {
+      setIsVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          // Optional: observer.disconnect() if we only want it to animate once
           observer.disconnect();
         }
       },
@@ -27,12 +42,9 @@ export function ScrollReveal({ children, className = '', delay }: ScrollRevealPr
       }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
+    observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [instant]);
 
   const delayClass = delay ? `delay-${delay}` : '';
 

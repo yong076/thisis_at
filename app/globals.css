@@ -95,7 +95,7 @@ h1, h2, h3, h4 {
 .shell {
   position: relative;
   min-height: 100dvh;
-  overflow: hidden;
+  overflow-x: hidden;
   background: var(--bg-base);
   color: var(--text-primary);
 }
