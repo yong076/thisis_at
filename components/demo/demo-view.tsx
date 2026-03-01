@@ -63,7 +63,7 @@ export function DemoView({ profiles, themes }: Props) {
               <span className="gradient-text">30가지 테마</span>를 직접 확인하세요
             </h1>
           </div>
-          <Link href="/admin" className="button-primary demo-start-btn">시작하기</Link>
+          <Link href="/dashboard" className="button-primary demo-start-btn">시작하기</Link>
         </div>
       </header>
 
@@ -145,7 +145,7 @@ export function DemoView({ profiles, themes }: Props) {
       {/* ─── Footer CTA ───────────────────────────────────────── */}
       <footer className="demo-footer">
         <p className="demo-footer-text">마음에 드는 테마를 찾으셨나요?</p>
-        <Link href="/admin" className="button-primary">나만의 페이지 만들기</Link>
+        <Link href="/dashboard" className="button-primary">나만의 페이지 만들기</Link>
       </footer>
     </div>
   );

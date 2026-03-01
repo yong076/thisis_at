@@ -154,7 +154,7 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
       {/* ─── Top Navigation Bar ─────────────────────────────── */}
       <nav className="editor-topnav">
         <div className="editor-topnav-inner">
-          <Link href="/admin" className="editor-topnav-brand">
+          <Link href="/dashboard" className="editor-topnav-brand">
             thisis.at
           </Link>
 

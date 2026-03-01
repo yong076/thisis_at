@@ -24,7 +24,7 @@ export default function HomePage() {
               {t('home.hero.subtitle')}
             </p>
             <div className="hero-actions">
-              <Link href="/admin" className="button-primary" style={{ padding: '0.9rem 2rem', fontSize: '1.05rem', borderRadius: '16px' }}>
+              <Link href="/dashboard" className="button-primary" style={{ padding: '0.9rem 2rem', fontSize: '1.05rem', borderRadius: '16px' }}>
                 {t('home.hero.cta')}
               </Link>
               <Link href="/demo" className="button-secondary" style={{ padding: '0.9rem 2rem', fontSize: '1.05rem', borderRadius: '16px' }}>
@@ -85,7 +85,7 @@ export default function HomePage() {
             <p className="subtitle" style={{ maxWidth: '400px', margin: '0 auto 2rem', fontSize: '1.1rem' }}>
               {t('home.cta.subtitle')}
             </p>
-            <Link href="/admin" className="button-primary" style={{ padding: '0.9rem 2.5rem', fontSize: '1.1rem', borderRadius: '16px' }}>
+            <Link href="/dashboard" className="button-primary" style={{ padding: '0.9rem 2.5rem', fontSize: '1.1rem', borderRadius: '16px' }}>
               {t('home.cta.button')}
             </Link>
           </ScrollReveal>

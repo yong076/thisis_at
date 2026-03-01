@@ -66,7 +66,7 @@ export function AnalyticsDashboard({ handle, displayName }: { handle: string; di
     <main className="page">
       {/* Header */}
       <header className="admin-header">
-        <Link href="/admin" className="brand">thisis.at</Link>
+        <Link href="/dashboard" className="brand">thisis.at</Link>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <Link
             href={`/editor/@${handle}`}

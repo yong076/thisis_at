@@ -37,7 +37,7 @@ export function ExploreView({ categories, profiles }: Props) {
         </h1>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <LanguageSwitcher />
-          <Link href="/admin" className="button-primary" style={{ padding: '0.4rem 0.9rem', fontSize: '0.85rem' }}>
+          <Link href="/dashboard" className="button-primary" style={{ padding: '0.4rem 0.9rem', fontSize: '0.85rem' }}>
             {t('explore.createAt')}
           </Link>
         </div>

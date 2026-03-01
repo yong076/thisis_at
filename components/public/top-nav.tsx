@@ -21,7 +21,7 @@ export function TopNav() {
         <Link href="/explore" className="nav-link">
           {t('nav.explore')}
         </Link>
-        <Link href="/admin" className="nav-link nav-link--cta">
+        <Link href="/dashboard" className="nav-link nav-link--cta">
           {t('nav.dashboard')}
         </Link>
         {session?.user?.role === 'ADMIN' && (
