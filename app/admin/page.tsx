@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { listProfiles } from '@/lib/db';
+import { getGlobalStats, getRecentSignups } from '@/lib/db/admin';
 import { DefaultShell } from '@/components/public/default-shell';
 import { Dashboard } from '@/components/admin/dashboard';
+import { OverviewDashboard } from '@/components/admin/overview/overview-dashboard';
 
 export default async function AdminPage() {
   const session = await auth();
@@ -11,14 +13,34 @@ export default async function AdminPage() {
     redirect('/login');
   }
 
-  // ADMIN sees all profiles; regular users see only their own
-  const profiles = session.user.role === 'ADMIN'
-    ? await listProfiles()
-    : await listProfiles(session.user.id);
+  // Regular users: show the simple dashboard
+  if (session.user.role !== 'ADMIN') {
+    const profiles = await listProfiles(session.user.id);
+    return (
+      <DefaultShell>
+        <Dashboard profiles={profiles} userName={session.user.name ?? '관리자'} />
+      </DefaultShell>
+    );
+  }
 
-  return (
-    <DefaultShell>
-      <Dashboard profiles={profiles} userName={session.user.name ?? '관리자'} />
-    </DefaultShell>
-  );
+  // Admin users: show the overview dashboard
+  const [stats, recentSignups] = await Promise.all([
+    getGlobalStats(),
+    getRecentSignups(10),
+  ]);
+
+  const initialStats = {
+    ...stats,
+    recentSignups: recentSignups.map((u) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      image: u.image,
+      role: u.role,
+      createdAt: u.createdAt.toISOString(),
+      profileCount: u._count.profiles,
+    })),
+  };
+
+  return <OverviewDashboard initialStats={initialStats} />;
 }

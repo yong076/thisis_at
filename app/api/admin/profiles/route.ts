@@ -1,7 +1,48 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { normalizeHandle, validateHandle } from '@/lib/handle';
+import { listAllProfiles } from '@/lib/db/admin';
+
+export async function GET(req: Request) {
+  const check = await requireAdmin();
+  if (!check.ok) {
+    return NextResponse.json({ error: check.error }, { status: check.status });
+  }
+
+  const url = new URL(req.url);
+  const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
+  const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit')) || 20));
+  const search = url.searchParams.get('search') || undefined;
+  const type = url.searchParams.get('type') || undefined;
+  const published = url.searchParams.get('published') || undefined;
+
+  const result = await listAllProfiles({ page, limit, search, type, published });
+
+  return NextResponse.json({
+    profiles: result.profiles.map((p) => ({
+      id: p.id,
+      handle: p.handle,
+      displayName: p.displayName,
+      type: p.type,
+      bio: p.bio,
+      avatarUrl: p.avatarUrl,
+      isPublished: p.isPublished,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+      userId: p.userId,
+      ownerName: p.owner.name,
+      ownerEmail: p.owner.email,
+      blockCount: p._count.blocks,
+      viewCount: p._count.pageViews,
+      eventCount: p._count.events,
+    })),
+    total: result.total,
+    page,
+    limit,
+  });
+}
 
 export async function POST(req: Request) {
   const session = await auth();

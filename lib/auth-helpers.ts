@@ -2,6 +2,32 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { normalizeHandle } from '@/lib/handle';
 
+export type AdminResult = {
+  ok: true;
+  userId: string;
+} | {
+  ok: false;
+  status: number;
+  error: string;
+};
+
+/**
+ * Check that the current session user is an ADMIN.
+ */
+export async function requireAdmin(): Promise<AdminResult> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return { ok: false, status: 401, error: '로그인이 필요합니다.' };
+  }
+
+  if (session.user.role !== 'ADMIN') {
+    return { ok: false, status: 403, error: '관리자 권한이 필요합니다.' };
+  }
+
+  return { ok: true, userId: session.user.id };
+}
+
 export type OwnershipResult = {
   ok: true;
   profile: { id: string; userId: string; handle: string };
