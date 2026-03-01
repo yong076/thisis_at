@@ -33,7 +33,8 @@ export function SparkleLayer({ colors, visible = true }: Props) {
     if (!visible) return;
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const count = reducedMotion ? 8 : 28;
+    const isMobile = window.innerWidth <= 768;
+    const count = reducedMotion ? 8 : isMobile ? 14 : 28;
 
     const generated: Particle[] = [];
     for (let i = 0; i < count; i++) {

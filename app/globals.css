@@ -107,6 +107,10 @@ h1, h2, h3, h4 {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  will-change: transform;           /* promote to GPU layer — avoids re-rasterisation */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  contain: strict;
 }
 
 .mesh-bg svg {
@@ -210,6 +214,10 @@ h1, h2, h3, h4 {
   pointer-events: none;
   z-index: 1;
   overflow: hidden;
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  contain: strict;
 }
 
 .sparkle-dot {
@@ -2171,6 +2179,26 @@ h1, h2, h3, h4 {
 .instagram-embed-wrap {
   border-radius: var(--radius-sm);
   overflow: hidden;
+}
+
+/* ============================================================
+   Mobile Performance — Reduce GPU load on phones / in-app browsers
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Pause orb drift so the heavy SVG blur only rasterises once */
+  .mesh-orb {
+    animation-play-state: paused !important;
+  }
+
+  /* Prevent address-bar resize from re-rasterising the fixed layers.
+     Oversize the container so it covers both small and large viewports. */
+  .mesh-bg,
+  .sparkle-layer {
+    top: -10vh;
+    bottom: -10vh;
+    height: auto;
+  }
 }
 
 /* ============================================================

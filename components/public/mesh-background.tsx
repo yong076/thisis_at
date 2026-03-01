@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 type Props = {
   colors?: string[];
   baseColor?: string;
@@ -34,6 +36,14 @@ function orbClass(idx: number) {
 export function MeshBackground({ colors, baseColor, opacity }: Props) {
   const meshColors = colors ?? DEFAULT_COLORS;
   const base = baseColor ?? DEFAULT_BASE;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+  }, []);
+
+  // Mobile: use fewer orbs (6 instead of 10) and skip noise overlay
+  const orbs = isMobile ? ORB_POSITIONS.slice(0, 6) : ORB_POSITIONS;
 
   return (
     <div className="mesh-bg" aria-hidden="true" style={opacity !== undefined ? { opacity } : undefined}>
@@ -44,19 +54,21 @@ export function MeshBackground({ colors, baseColor, opacity }: Props) {
       >
         <defs>
           <filter id="mesh-blur">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="100" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation={isMobile ? '80' : '100'} />
           </filter>
-          <filter id="mesh-noise">
-            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
-            <feColorMatrix type="saturate" values="0" />
-            <feBlend in="SourceGraphic" mode="soft-light" />
-          </filter>
+          {!isMobile && (
+            <filter id="mesh-noise">
+              <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+              <feColorMatrix type="saturate" values="0" />
+              <feBlend in="SourceGraphic" mode="soft-light" />
+            </filter>
+          )}
         </defs>
 
         <rect width="1400" height="900" fill={base} />
 
         <g filter="url(#mesh-blur)">
-          {ORB_POSITIONS.map((orb, idx) => (
+          {orbs.map((orb, idx) => (
             <circle
               key={idx}
               className={orbClass(idx)}
@@ -69,7 +81,9 @@ export function MeshBackground({ colors, baseColor, opacity }: Props) {
           ))}
         </g>
 
-        <rect width="1400" height="900" filter="url(#mesh-noise)" opacity="0.04" />
+        {!isMobile && (
+          <rect width="1400" height="900" filter="url(#mesh-noise)" opacity="0.04" />
+        )}
       </svg>
 
       <div className="mesh-fade" />
