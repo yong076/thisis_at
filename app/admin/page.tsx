@@ -1,9 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { listProfiles } from '@/lib/db';
 import { getGlobalStats, getRecentSignups } from '@/lib/db/admin';
-import { DefaultShell } from '@/components/public/default-shell';
-import { Dashboard } from '@/components/admin/dashboard';
 import { OverviewDashboard } from '@/components/admin/overview/overview-dashboard';
 
 export default async function AdminPage() {
@@ -13,14 +10,9 @@ export default async function AdminPage() {
     redirect('/login');
   }
 
-  // Regular users: show the simple dashboard
+  // Non-admin users: send to dashboard instead
   if (session.user.role !== 'ADMIN') {
-    const profiles = await listProfiles(session.user.id);
-    return (
-      <DefaultShell>
-        <Dashboard profiles={profiles} userName={session.user.name ?? '관리자'} />
-      </DefaultShell>
-    );
+    redirect('/dashboard');
   }
 
   // Admin users: show the overview dashboard

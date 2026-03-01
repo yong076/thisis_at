@@ -31,7 +31,7 @@ export default async function EditorPage({ params }: { params: { handle: string 
     });
 
     if (!ownsProfile) {
-      redirect('/admin');
+      redirect('/dashboard');
     }
   }
 

@@ -27,7 +27,7 @@ export default async function AnalyticsPage({ params }: { params: { handle: stri
     });
 
     if (!ownsProfile) {
-      redirect('/admin');
+      redirect('/dashboard');
     }
   }
 

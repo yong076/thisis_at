@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
-const PROTECTED_PREFIXES = ['/admin', '/editor', '/settings'];
+const PROTECTED_PREFIXES = ['/admin', '/dashboard', '/editor', '/settings'];
 const SUPPORTED_LOCALES = ['ko', 'en', 'ja'];
 
 function detectLocale(acceptLanguage: string | null): string {

@@ -9,7 +9,7 @@ export function LoginButton() {
   return (
     <button
       type="button"
-      onClick={() => signIn('google', { callbackUrl: '/admin' })}
+      onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
       className="button-primary"
       style={{
         width: '100%',

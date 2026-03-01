@@ -12,9 +12,11 @@ import { CreateProfileDialog } from './create-profile-dialog';
 export function Dashboard({
   profiles,
   userName,
+  isAdmin = false,
 }: {
   profiles: PublicProfile[];
   userName: string;
+  isAdmin?: boolean;
 }) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const t = useT();
@@ -28,6 +30,15 @@ export function Dashboard({
         </Link>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <LanguageSwitcher />
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="button-secondary"
+              style={{ padding: '0.4rem 0.75rem', fontSize: '0.82rem' }}
+            >
+              🛠 Admin
+            </Link>
+          )}
           <button className="btn-logout" onClick={() => signOut({ callbackUrl: '/login' })}>
             {t('nav.logout')}
           </button>
