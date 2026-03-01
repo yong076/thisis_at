@@ -1,10 +1,11 @@
 'use client';
 
 import type { BlockFormProps } from '../block-edit-dialog';
+import { ImageUpload } from '../../shared/image-upload';
 
 type Member = { name: string; role?: string; imageUrl?: string; url?: string };
 
-export function TeamMembersForm({ config, onChange }: BlockFormProps) {
+export function TeamMembersForm({ config, onChange, handle }: BlockFormProps) {
   const members = (config.members as Member[]) ?? [];
 
   function updateMember(index: number, field: keyof Member, value: string) {
@@ -29,6 +30,23 @@ export function TeamMembersForm({ config, onChange }: BlockFormProps) {
             <strong>팀원 #{i + 1}</strong>
             <button type="button" className="form-array-remove" onClick={() => removeMember(i)}>✕</button>
           </div>
+
+          {/* Image upload instead of URL input */}
+          {handle && (
+            <div className="form-array-image">
+              <ImageUpload
+                handle={handle}
+                value={member.imageUrl || null}
+                onChange={(url) => updateMember(i, 'imageUrl', url)}
+                onRemove={() => updateMember(i, 'imageUrl', '')}
+                field="blockImage"
+                aspect="square"
+                compact
+                label={`팀원 ${i + 1} 프로필 이미지`}
+              />
+            </div>
+          )}
+
           <input
             type="text"
             value={member.name}
@@ -41,12 +59,6 @@ export function TeamMembersForm({ config, onChange }: BlockFormProps) {
             value={member.role ?? ''}
             onChange={(e) => updateMember(i, 'role', e.target.value)}
             placeholder="역할 (선택)"
-          />
-          <input
-            type="url"
-            value={member.imageUrl ?? ''}
-            onChange={(e) => updateMember(i, 'imageUrl', e.target.value)}
-            placeholder="프로필 이미지 URL (선택)"
           />
           <input
             type="url"

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import type { ProfileBlock, BlockType } from '@/lib/types';
 import { getBlockMeta } from '@/lib/block-configs';
 import { useT } from '@/lib/i18n/client';
+import { useToast } from '@/components/ui/toast';
 import { LinkButtonForm } from './forms/link-button-form';
 import { TextAnnouncementForm } from './forms/text-announcement-form';
 import { SocialRowForm } from './forms/social-row-form';
@@ -16,6 +17,7 @@ import { RichTextForm } from './forms/rich-text-form';
 import { TeamMembersForm } from './forms/team-members-form';
 import { TicketCtaForm } from './forms/ticket-cta-form';
 import { ProductCardsForm } from './forms/product-cards-form';
+import { MediaGalleryForm } from './forms/media-gallery-form';
 
 type Props = {
   open: boolean;
@@ -30,6 +32,8 @@ type Props = {
 export type BlockFormProps = {
   config: Record<string, unknown>;
   onChange: (config: Record<string, unknown>) => void;
+  /** Profile handle — needed for image upload API calls */
+  handle?: string;
 };
 
 function getFormComponent(type: BlockType) {
@@ -46,6 +50,7 @@ function getFormComponent(type: BlockType) {
     case 'TEAM_MEMBERS': return TeamMembersForm;
     case 'TICKET_CTA': return TicketCtaForm;
     case 'PRODUCT_CARDS': return ProductCardsForm;
+    case 'MEDIA_GALLERY': return MediaGalleryForm;
     default: return null;
   }
 }
@@ -53,6 +58,7 @@ function getFormComponent(type: BlockType) {
 export function BlockEditDialog({ open, block, newBlockType, handle, onClose, onSaved }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const t = useT();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
   const [title, setTitle] = useState('');
@@ -128,6 +134,7 @@ export function BlockEditDialog({ open, block, newBlockType, handle, onClose, on
 
         onSaved(data.block);
         onClose();
+        toast(isNew ? '블록이 추가되었습니다.' : '블록이 수정되었습니다.', 'success');
       } catch {
         setError(t('common.error.network'));
       }
@@ -162,7 +169,7 @@ export function BlockEditDialog({ open, block, newBlockType, handle, onClose, on
 
           {/* Block Config Form */}
           {FormComponent && (
-            <FormComponent config={config} onChange={setConfig} />
+            <FormComponent config={config} onChange={setConfig} handle={handle} />
           )}
 
           {/* Error */}

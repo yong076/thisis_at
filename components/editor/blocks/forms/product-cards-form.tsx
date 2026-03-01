@@ -1,10 +1,11 @@
 'use client';
 
 import type { BlockFormProps } from '../block-edit-dialog';
+import { ImageUpload } from '../../shared/image-upload';
 
 type Product = { name: string; price: string; description?: string; imageUrl?: string; url?: string };
 
-export function ProductCardsForm({ config, onChange }: BlockFormProps) {
+export function ProductCardsForm({ config, onChange, handle }: BlockFormProps) {
   const products = (config.products as Product[]) ?? [];
 
   function updateProduct(index: number, field: keyof Product, value: string) {
@@ -29,6 +30,23 @@ export function ProductCardsForm({ config, onChange }: BlockFormProps) {
             <strong>상품 #{i + 1}</strong>
             <button type="button" className="form-array-remove" onClick={() => removeProduct(i)}>✕</button>
           </div>
+
+          {/* Image upload instead of URL input */}
+          {handle && (
+            <div className="form-array-image">
+              <ImageUpload
+                handle={handle}
+                value={product.imageUrl || null}
+                onChange={(url) => updateProduct(i, 'imageUrl', url)}
+                onRemove={() => updateProduct(i, 'imageUrl', '')}
+                field="blockImage"
+                aspect="square"
+                compact
+                label={`상품 ${i + 1} 이미지`}
+              />
+            </div>
+          )}
+
           <input
             type="text"
             value={product.name}
@@ -48,12 +66,6 @@ export function ProductCardsForm({ config, onChange }: BlockFormProps) {
             value={product.description ?? ''}
             onChange={(e) => updateProduct(i, 'description', e.target.value)}
             placeholder="설명 (선택)"
-          />
-          <input
-            type="url"
-            value={product.imageUrl ?? ''}
-            onChange={(e) => updateProduct(i, 'imageUrl', e.target.value)}
-            placeholder="이미지 URL (선택)"
           />
           <input
             type="url"

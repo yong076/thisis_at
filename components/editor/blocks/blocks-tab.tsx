@@ -20,6 +20,7 @@ import { SortableBlockItem } from './sortable-block-item';
 import { BlockAddDialog } from './block-add-dialog';
 import { BlockEditDialog } from './block-edit-dialog';
 import { useT } from '@/lib/i18n/client';
+import { useToast } from '@/components/ui/toast';
 import type { ProfileBlock, BlockType, ProfileType } from '@/lib/types';
 
 type Props = {
@@ -31,6 +32,7 @@ type Props = {
 
 export function BlocksTab({ blocks, handle, profileType, onBlocksChange }: Props) {
   const t = useT();
+  const { toast } = useToast();
   const [, startTransition] = useTransition();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingBlock, setEditingBlock] = useState<ProfileBlock | null>(null);
@@ -52,19 +54,25 @@ export function BlocksTab({ blocks, handle, profileType, onBlocksChange }: Props
       onBlocksChange(reordered);
 
       // Persist reorder
+      const previousBlocks = blocks;
       startTransition(async () => {
         try {
-          await fetch(`/api/editor/${encodeURIComponent(handle)}/blocks/reorder`, {
+          const res = await fetch(`/api/editor/${encodeURIComponent(handle)}/blocks/reorder`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ orderedIds: reordered.map((b) => b.id) }),
           });
+          if (!res.ok) {
+            onBlocksChange(previousBlocks);
+            toast('순서 변경에 실패했습니다.', 'error');
+          }
         } catch {
-          // silently ignore
+          onBlocksChange(previousBlocks);
+          toast('네트워크 오류가 발생했습니다.', 'error');
         }
       });
     },
-    [blocks, handle, onBlocksChange, startTransition],
+    [blocks, handle, onBlocksChange, startTransition, toast],
   );
 
   const handleToggle = useCallback(

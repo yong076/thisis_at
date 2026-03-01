@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { THEMES } from '@/lib/themes';
 import { FONT_OPTIONS } from '@/lib/fonts';
 import { useT } from '@/lib/i18n/client';
+import { useToast } from '@/components/ui/toast';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { BlocksTab } from './blocks/blocks-tab';
 import { CodeEditorTab } from './code/code-editor-tab';
@@ -12,6 +13,9 @@ import { BlockEditDialog } from './blocks/block-edit-dialog';
 import { BlockAddDialog } from './blocks/block-add-dialog';
 import { LivePreview } from './preview/live-preview';
 import { AvatarUpload } from './profile/avatar-upload';
+import { CharCountInput } from './shared/char-count-input';
+import { ImageUpload } from './shared/image-upload';
+import { useUnsavedChanges } from './hooks/use-unsaved-changes';
 import type { PublicProfile, ProfileBlock, BlockType } from '@/lib/types';
 import type { ThemeConfig } from '@/lib/themes';
 import type { FontOption } from '@/lib/fonts';
@@ -21,6 +25,7 @@ type MobileView = 'edit' | 'preview';
 
 export function EditorContent({ profile }: { profile: PublicProfile }) {
   const t = useT();
+  const { toast } = useToast();
   const [activePage, setActivePage] = useState<EditorPage>('links');
   const [blocks, setBlocks] = useState<ProfileBlock[]>(
     [...profile.blocks].sort((a, b) => a.order - b.order),
@@ -34,11 +39,16 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
 
   // Profile editing state
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatarUrl ?? null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(profile.coverUrl ?? null);
   const [displayName, setDisplayName] = useState(profile.displayName);
   const [bio, setBio] = useState(profile.bio ?? '');
   const [location, setLocation] = useState(profile.location ?? '');
   const [profileSaving, startProfileSave] = useTransition();
-  const [profileSaved, setProfileSaved] = useState(false);
+
+  // Unsaved changes detection for profile fields
+  const currentProfileSnapshot = `${displayName}|${bio}|${location}`;
+  const originalProfileSnapshot = `${profile.displayName}|${profile.bio ?? ''}|${profile.location ?? ''}`;
+  const { hasChanges: hasProfileChanges, markSaved: markProfileSaved } = useUnsavedChanges(currentProfileSnapshot, originalProfileSnapshot);
 
   // Code editor toggle
   const [showCodeEditor, setShowCodeEditor] = useState(false);
@@ -51,8 +61,8 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
 
   // Derived profile with live edits
   const liveProfile = useMemo(
-    () => ({ ...profile, avatarUrl: avatarUrl ?? undefined, displayName, bio, location }),
-    [profile, avatarUrl, displayName, bio, location],
+    () => ({ ...profile, avatarUrl: avatarUrl ?? undefined, coverUrl: coverUrl ?? undefined, displayName, bio, location }),
+    [profile, avatarUrl, coverUrl, displayName, bio, location],
   );
 
   const handleProfileSave = useCallback(() => {
@@ -64,14 +74,16 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
           body: JSON.stringify({ displayName, bio, location }),
         });
         if (res.ok) {
-          setProfileSaved(true);
-          setTimeout(() => setProfileSaved(false), 2000);
+          toast('프로필이 저장되었습니다.', 'success');
+          markProfileSaved();
+        } else {
+          toast('프로필 저장에 실패했습니다.', 'error');
         }
       } catch {
-        // silently ignore
+        toast('네트워크 오류가 발생했습니다.', 'error');
       }
     });
-  }, [profile.handle, displayName, bio, location]);
+  }, [profile.handle, displayName, bio, location, toast, markProfileSaved]);
 
   const handleBlocksChange = useCallback((newBlocks: ProfileBlock[]) => {
     setBlocks(newBlocks);
@@ -88,15 +100,30 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ enabled }),
-    }).catch(() => {});
-  }, [profile.handle]);
+    }).catch(() => {
+      // Rollback on error
+      setBlocks((prev) => prev.map((b) => (b.id === blockId ? { ...b, enabled: !enabled } : b)));
+      toast('블록 상태 변경에 실패했습니다.', 'error');
+    });
+  }, [profile.handle, toast]);
 
   const handlePreviewDelete = useCallback((blockId: string) => {
+    const previous = blocks;
     setBlocks((prev) => prev.filter((b) => b.id !== blockId));
     fetch(`/api/editor/${encodeURIComponent(profile.handle)}/blocks/${blockId}`, {
       method: 'DELETE',
-    }).catch(() => {});
-  }, [profile.handle]);
+    }).then((res) => {
+      if (res.ok) {
+        toast('블록이 삭제되었습니다.', 'success');
+      } else {
+        setBlocks(previous);
+        toast('블록 삭제에 실패했습니다.', 'error');
+      }
+    }).catch(() => {
+      setBlocks(previous);
+      toast('네트워크 오류가 발생했습니다.', 'error');
+    });
+  }, [profile.handle, blocks, toast]);
 
   const handlePreviewInsert = useCallback((index: number) => {
     setInsertIndex(index);
@@ -175,6 +202,19 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
             <>
               {/* Profile Card with Avatar Upload & Info Editing */}
               <section className="card dash-card editor-profile-card">
+                {/* Cover Image Upload */}
+                <div className="editor-cover-upload">
+                  <ImageUpload
+                    handle={profile.handle}
+                    value={coverUrl}
+                    onChange={setCoverUrl}
+                    onRemove={() => setCoverUrl(null)}
+                    field="coverUrl"
+                    aspect="landscape"
+                    label="커버 이미지"
+                  />
+                </div>
+
                 <div className="editor-profile-row">
                   <AvatarUpload
                     handle={profile.handle}
@@ -192,26 +232,29 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
                   </div>
                 </div>
                 <div className="editor-profile-fields">
-                  <label className="editor-field">
-                    <span className="editor-field-label">{t('editor.profile.displayName')}</span>
-                    <input
+                  <div className="editor-field">
+                    <CharCountInput
+                      label={t('editor.profile.displayName')}
+                      maxLength={50}
                       type="text"
                       className="editor-field-input"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder={t('editor.profile.displayNamePlaceholder')}
                     />
-                  </label>
-                  <label className="editor-field">
-                    <span className="editor-field-label">{t('editor.profile.bio')}</span>
-                    <textarea
+                  </div>
+                  <div className="editor-field">
+                    <CharCountInput
+                      label={t('editor.profile.bio')}
+                      maxLength={300}
+                      multiline
                       className="editor-field-input editor-field-textarea"
                       value={bio}
                       onChange={(e) => setBio(e.target.value)}
                       placeholder={t('editor.profile.bioPlaceholder')}
                       rows={3}
                     />
-                  </label>
+                  </div>
                   <label className="editor-field">
                     <span className="editor-field-label">{t('editor.profile.location')}</span>
                     <input
@@ -224,11 +267,12 @@ export function EditorContent({ profile }: { profile: PublicProfile }) {
                   </label>
                   <button
                     type="button"
-                    className="button-primary editor-profile-save"
+                    className={`button-primary editor-profile-save ${hasProfileChanges ? 'editor-profile-save--unsaved' : ''}`}
                     onClick={handleProfileSave}
                     disabled={profileSaving}
                   >
-                    {profileSaving ? t('common.saving') : profileSaved ? t('common.saved') : t('editor.profile.save')}
+                    {profileSaving ? t('common.saving') : t('editor.profile.save')}
+                    {hasProfileChanges && <span className="unsaved-dot" aria-label="미저장 변경사항">●</span>}
                   </button>
                 </div>
               </section>
@@ -386,8 +430,8 @@ function AppearancePage({
   handle,
 }: AppearanceProps) {
   const t = useT();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [saved, setSaved] = useState(false);
 
   const categories = ['vibrant', 'light', 'dark', 'minimal'] as const;
 
@@ -421,11 +465,12 @@ function AppearancePage({
           }),
         });
         if (res.ok) {
-          setSaved(true);
-          setTimeout(() => setSaved(false), 2000);
+          toast('외관 설정이 저장되었습니다.', 'success');
+        } else {
+          toast('외관 설정 저장에 실패했습니다.', 'error');
         }
       } catch {
-        // silently ignore
+        toast('네트워크 오류가 발생했습니다.', 'error');
       }
     });
   }
@@ -435,7 +480,7 @@ function AppearancePage({
       {/* Sticky save bar */}
       <div className="appearance-save-bar">
         <button className="button-primary" onClick={handleSaveAll} disabled={isPending} type="button">
-          {isPending ? t('common.saving') : saved ? t('common.saved') : t('editor.saveAppearance')}
+          {isPending ? t('common.saving') : t('editor.saveAppearance')}
         </button>
       </div>
 

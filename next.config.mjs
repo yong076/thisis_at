@@ -12,7 +12,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.public.blob.vercel-storage.com',
+        hostname: 'pub-c6502123ae3f47e294a3e074b209f119.r2.dev',
       },
     ]
   }

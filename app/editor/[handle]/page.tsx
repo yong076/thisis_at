@@ -4,6 +4,7 @@ import { getProfileByHandle } from '@/lib/db';
 import { normalizeHandle } from '@/lib/handle';
 import { DefaultShell } from '@/components/public/default-shell';
 import { EditorContent } from '@/components/editor/editor-content';
+import { ToastProvider } from '@/components/ui/toast';
 import { prisma } from '@/lib/prisma';
 
 export default async function EditorPage({ params }: { params: { handle: string } }) {
@@ -36,7 +37,9 @@ export default async function EditorPage({ params }: { params: { handle: string 
 
   return (
     <DefaultShell>
-      <EditorContent profile={profile} />
+      <ToastProvider>
+        <EditorContent profile={profile} />
+      </ToastProvider>
     </DefaultShell>
   );
 }
